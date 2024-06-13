@@ -1,0 +1,9 @@
+pre-commit:
+  commands:
+    prettier:
+      glob: "*.{md,json,prettierrc}"
+      run: prettier --check {all_files}
+    rustfmt:
+      run: cargo fmt
+    clippy:
+      run: cargo clippy -- -D warnings

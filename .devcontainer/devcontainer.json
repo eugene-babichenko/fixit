@@ -1,0 +1,10 @@
+{
+  "name": "fixit",
+  "build": { "dockerfile": "Dockerfile" },
+  "postAttachCommand": "lefthook install",
+  "customizations": {
+    "vscode": {
+      "extensions": ["rust-lang.rust-analyzer", "esbenp.prettier-vscode"]
+    }
+  }
+}

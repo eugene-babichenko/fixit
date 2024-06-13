@@ -1,0 +1,20 @@
+[package]
+name = "fixit"
+version = "0.1.0-alpha"
+edition = "2021"
+license = "MIT"
+authors = [ "Yevhenii Babichenko <eugene.babichenko@gmail.com>" ]
+homepage = "https://github.com/eugene-babichenko/fixit"
+
+[dependencies]
+clap = { version = "4", features = ["derive", "env"] }
+ctrlc = "3"
+dialoguer = "0.11"
+env_logger = "0.11"
+indicatif = "0.17"
+log = "0.4"
+rayon = "1"
+regex = "1"
+shlex = "1"
+strsim = "0.11"
+thiserror = "1"
