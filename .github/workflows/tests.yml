@@ -11,7 +11,7 @@ jobs:
         run: npm install -g prettier
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run cargo fmt
         run: cargo fmt --check

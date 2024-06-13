@@ -26,9 +26,13 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
+Installing pre-built binaries using [`cargo-binstall`][binstall]:
+
+    cargo binstall --git https://github.com/eugene-babichenko/fixit fixit
+
 Cargo installation (you will need the [Rust toolchain][rust]):
 
-    cargo install fixit
+    cargo install --git https://github.com/eugene-babichenko/fixit
 
 ## Shell setup
 
@@ -91,8 +95,9 @@ Environment variables:
   re-running the given command. This is generally much faster, so it is
   recommended that you leave it as is unless you run into any bugs associated
   with finding fixes. The combination that can be potentially buggy is
-  suppported terminal emulator with unsupported multiplexer. The default value
-  is `true`. Pass `false` to disable.
+  suppported terminal emulator with unsupported multiplexer when the failed
+  command is not visible on the screen. The default value is `true`. Pass
+  `false` to disable.
 - `FIXIT_QUICK_SEARCH_DEPTH` sets the number of lines to get from the scrollback
   buffer in addition to what we see on the screen. The default is `1000`.
 
@@ -198,3 +203,4 @@ straightforward without editing shell configuration files.
 [kitty-remote]:
   https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.allow_remote_control
 [kitty-sh-i]: https://sw.kovidgoyal.net/kitty/shell-integration/
+[binstall]: https://github.com/cargo-bins/cargo-binstall

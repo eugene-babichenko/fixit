@@ -5,6 +5,10 @@ edition = "2021"
 license = "MIT"
 authors = [ "Yevhenii Babichenko <eugene.babichenko@gmail.com>" ]
 homepage = "https://github.com/eugene-babichenko/fixit"
+repository = "https://github.com/eugene-babichenko/fixit"
+readme = "README.md"
+categories = [ "command-line-utilities" ]
+description = "A utility to fix mistakes in your commands."
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env"] }
