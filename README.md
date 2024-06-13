@@ -26,6 +26,10 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
+Using Homebrew/Linuxbrew:
+
+    brew install eugene-babichenko/fixit/fixit
+
 Installing pre-built binaries using [`cargo-binstall`][binstall]:
 
     cargo binstall --git https://github.com/eugene-babichenko/fixit fixit
@@ -156,7 +160,7 @@ Environment variables:
   - [ ] Integration tests for supported emulators/multiplexers.
 - [ ] Optional removal of a failed command from history.
 - Packaging
-  - [ ] Homebrew
+  - [x] Homebrew
   - [ ] AUR
   - [ ] deb
   - [ ] rpm
