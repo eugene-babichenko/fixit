@@ -3,9 +3,9 @@
 set -xeuo pipefail
 
 prefix="https://github.com/eugene-babichenko/fixit/releases/download/$1/fixit-$1"
-version="$(echo "$1" | sed 's/v//')"
+version="${1//v}"
 
-cat > Formula/fixit.rb <<EOF
+cat > fixit.rb <<EOF
 class Fixit < Formula
   desc "A utility to fix mistakes in your commands."
   homepage "https://github.com/eugene-babichenko/fixit"
