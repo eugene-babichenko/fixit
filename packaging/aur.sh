@@ -1,11 +1,16 @@
 #!/bin/bash
+
+set -xeuo pipefail
+
 repo="https://github.com/eugene-babichenko/fixit"
+version="$(echo "$1" | sed 's/v//' | sed 's/-/_/')"
+checksum="$(wget -q -O- "$repo/archive/$1.tar.gz" | sha256sum | cut -d ' ' -f 1 | tr -d '\n')"
 
 cat > PKGBUILD <<EOF
 # Maintainer: Eugene Babichenko <eugene.babichenko@gmail.com>
 
 pkgname=fixit
-pkgver=$(echo $1 | sed 's/v//' | sed 's/-/_/')
+pkgver=$version
 _pkgver="\${pkgver//_/-}"
 pkgrel=1
 url="$repo"
@@ -14,7 +19,7 @@ license=('MIT')
 arch=('x86_64' 'i686' 'aarch64' 'armv7h')
 makedepends=('rust')
 source=("\$pkgname-\$pkgver.tar.gz::\$url/archive/v\$_pkgver.tar.gz")
-sha256sums=("$(wget -q -O- "$repo/archive/$1.tar.gz" | shasum -a 256 | cut -d ' ' -f 1 | tr -d '\n')")
+sha256sums=('$checksum')
 
 build() {
   cd "\$pkgname-\$_pkgver"
@@ -32,3 +37,5 @@ package() {
 EOF
 
 makepkg --printsrcinfo > .SRCINFO
+
+makepkg

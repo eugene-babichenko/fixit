@@ -1,13 +1,18 @@
 #!/bin/bash
 
+set -xeuo pipefail
+
 hashname="https://github.com/eugene-babichenko/fixit/releases/download/$1/fixit-$1"
+version="$(echo "$1" | sed 's/v//' | sed 's/-/_/')"
+sha256_x86_64="$(wget -q -O - "$hashname-x86_64-unknown-linux-musl.sha256")"
+sha256_aarch64="$(wget -q -O - "$hashname-aarch64-unknown-linux-musl.sha256")"
 
 cat > PKGBUILD <<EOF
 # Maintainer: Eugene Babichenko <eugene.babichenko@gmail.com>
 
 pkgname=fixit-bin
 _pkgname="\${pkgname/-bin}"
-pkgver=$(echo $1 | sed 's/v//' | sed 's/-/_/')
+pkgver=$version
 _pkgver="\${pkgver//_/-}"
 pkgrel=1
 _repo="eugene-babichenko/\$_pkgname"
@@ -28,7 +33,7 @@ source_x86_64=(
   "\$_license"
 )
 sha256sums_x86_64=(
-  "$(wget -O - "$hashname-x86_64-unknown-linux-musl.sha256")"
+  "$sha256_x86_64"
   'SKIP'
   'SKIP'
 )
@@ -39,7 +44,7 @@ source_aarch64=(
   "\$_license"
 )
 sha256sums_aarch64=(
-  "$(wget -O - "$hashname-aarch64-unknown-linux-musl.sha256")"
+  "$sha256_aarch64"
   'SKIP'
   'SKIP'
 )
@@ -52,3 +57,5 @@ package() {
 EOF
 
 makepkg --printsrcinfo > .SRCINFO
+
+makepkg
