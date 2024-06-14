@@ -61,6 +61,7 @@ define_rules!(
     cargo_install_cwd,
     cargo_wrong_command,
     command_not_found,
+    cp_cwd,
     cp_dir,
     git_commit_no_changes,
     git_no_upstream,

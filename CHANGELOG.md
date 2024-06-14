@@ -11,6 +11,8 @@ and this project adheres to
 ### Added
 
 - `cp_dir` - fix attempting to `cp` a directory without `-R`.
+- `cp_cmd` - if `cp` was given only one argument assume we wanted to copy in the
+  current dir.
 
 ## v0.2.0-alpha
 
