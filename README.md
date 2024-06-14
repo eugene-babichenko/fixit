@@ -26,9 +26,13 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
-For Arch Linux users fixit is [available][aur] on AUR:
+For Arch Linux users fixit is [available][aur] on AUR (build from source):
 
     yay -S fixit
+
+`x86_64` and `aarch64` pre-built binaries are available as well:
+
+    yay -S fixit-bin
 
 Using Homebrew/Linuxbrew:
 
@@ -41,6 +45,9 @@ Installing with Cargo (you will need the [Rust toolchain][rust]):
 Installing pre-built binaries using [`cargo-binstall`][binstall]:
 
     cargo binstall --git https://github.com/eugene-babichenko/fixit fixit
+
+You can also download pre-built binaries for Linux (static binaries) and macOS
+from [Releases][releases].
 
 ## Shell setup
 
@@ -213,3 +220,4 @@ straightforward without editing shell configuration files.
 [kitty-sh-i]: https://sw.kovidgoyal.net/kitty/shell-integration/
 [binstall]: https://github.com/cargo-bins/cargo-binstall
 [aur]: https://aur.archlinux.org/packages/fixit
+[releases]: https://github.com/eugene-babichenko/fixit/releases
