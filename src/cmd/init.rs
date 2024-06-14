@@ -3,6 +3,8 @@ use std::{env::args, fs::canonicalize, io};
 use clap::{Parser, Subcommand};
 use thiserror::Error;
 
+use super::check_update;
+
 #[derive(Parser)]
 pub struct Cmd {
     // The name of the alias.
@@ -11,6 +13,8 @@ pub struct Cmd {
     /// The shell for which we generate the alias.
     #[command(subcommand)]
     shell: Shell,
+    #[command(flatten)]
+    check_update: check_update::Cmd,
 }
 
 #[derive(Debug, Error)]
@@ -30,6 +34,8 @@ enum Shell {
 
 impl Cmd {
     pub fn run(self) -> Result<(), Error> {
+        self.check_update.check();
+
         // This conversion is useful for the purposes of debugging without
         // installing the software globally every time.
         let mut executable = args().next().ok_or(Error::Args)?;

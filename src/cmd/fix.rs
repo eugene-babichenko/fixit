@@ -13,6 +13,8 @@ use thiserror::Error;
 
 use crate::{get_text, rules::RULES};
 
+use super::check_update;
+
 #[derive(Parser)]
 /// Fix a failing command. This command is not meant for direct use by the
 /// user. Upon selection it prints out the selected fix to stdout. It fails if
@@ -25,6 +27,8 @@ pub struct Cmd {
     page_size: usize,
     #[command(flatten)]
     get_text: crate::get_text::Config,
+    #[command(flatten)]
+    check_update: check_update::Cmd,
 }
 
 #[derive(Debug, Error)]
@@ -39,6 +43,8 @@ pub enum Error {
 
 impl Cmd {
     pub fn run(self) -> Result<(), Error> {
+        self.check_update.check();
+
         let bar = ProgressBar::new_spinner().with_message("Getting command output...");
         bar.enable_steady_tick(Duration::from_millis(100));
 
