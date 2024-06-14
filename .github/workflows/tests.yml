@@ -19,6 +19,9 @@ jobs:
       - name: Run Prettier
         run: prettier --check "**/*.{md,json,prettierrc}"
 
+      - name: Run shellcheck
+        run: shellcheck **/*.sh
+
       - name: Run cargo clippy
         run: cargo clippy --locked -- -D warnings
 
