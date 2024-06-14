@@ -21,7 +21,7 @@ class Fixit < Formula
   on_linux do
     on_intel do
       url "$prefix-x86_64-unknown-linux-musl.tar.gz"
-      sha256 "$($prefix-x86_64-unknown-linux-musl.sha256)"
+      sha256 "$(wget -O - $prefix-x86_64-unknown-linux-musl.sha256)"
     end
   end
 
