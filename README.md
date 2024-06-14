@@ -26,17 +26,21 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
+For Arch Linux users fixit is [available][aur] on AUR:
+
+    yay -S fixit
+
 Using Homebrew/Linuxbrew:
 
     brew install eugene-babichenko/fixit/fixit
 
+Installing with Cargo (you will need the [Rust toolchain][rust]):
+
+    cargo install --git https://github.com/eugene-babichenko/fixit
+
 Installing pre-built binaries using [`cargo-binstall`][binstall]:
 
     cargo binstall --git https://github.com/eugene-babichenko/fixit fixit
-
-Cargo installation (you will need the [Rust toolchain][rust]):
-
-    cargo install --git https://github.com/eugene-babichenko/fixit
 
 ## Shell setup
 
@@ -161,7 +165,7 @@ Environment variables:
 - [ ] Optional removal of a failed command from history.
 - Packaging
   - [x] Homebrew
-  - [ ] AUR
+  - [x] AUR
   - [ ] deb
   - [ ] rpm
   - [ ] NixOS
@@ -208,3 +212,4 @@ straightforward without editing shell configuration files.
   https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.allow_remote_control
 [kitty-sh-i]: https://sw.kovidgoyal.net/kitty/shell-integration/
 [binstall]: https://github.com/cargo-bins/cargo-binstall
+[aur]: https://aur.archlinux.org/packages/fixit
