@@ -3,8 +3,10 @@ on:
 
 name: Tests
 
+
 jobs:
-  tests:
+  fmt:
+    name: Code formatters
     runs-on: ubuntu-latest
     steps:
       - name: Install Prettier
@@ -22,8 +24,22 @@ jobs:
       - name: Run shellcheck
         run: shellcheck **/*.sh
 
+  clippy:
+    name: cargo clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Run cargo clippy
         run: cargo clippy --locked -- -D warnings
+
+  tests:
+    name: cargo test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Run tests
         env:
