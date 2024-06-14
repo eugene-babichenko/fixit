@@ -7,3 +7,6 @@ pre-commit:
       run: cargo fmt
     clippy:
       run: cargo clippy -- -D warnings
+    shellcheck:
+      glob: "**/*.{sh}"
+      run: shellcheck {all_files}

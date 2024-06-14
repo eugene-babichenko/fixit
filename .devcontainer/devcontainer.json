@@ -4,7 +4,11 @@
   "postAttachCommand": "lefthook install",
   "customizations": {
     "vscode": {
-      "extensions": ["rust-lang.rust-analyzer", "esbenp.prettier-vscode"]
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "esbenp.prettier-vscode",
+        "timonwong.shellcheck"
+      ]
     }
   }
 }
