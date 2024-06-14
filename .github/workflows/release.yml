@@ -45,13 +45,14 @@ jobs:
             target: aarch64-apple-darwin
             cross: false
     steps:
-      - name: Install cargo-binstall
-        if: ${{ matrix.cross }}
-        uses: cargo-bins/cargo-binstall@main
-
       - name: Install cargo-cross
         if: ${{ matrix.cross }}
-        run: "cargo binstall --force --no-confirm --git https://github.com/cross-rs/cross cross"
+        run: |
+          mkdir cross
+          cd cross
+          gh release download --repo 'cross-rs/cross' --pattern 'cross-x86_64-unknown-linux-musl.tar.gz'
+          tar -xvzf cross-x86_64-unknown-linux-musl.tar.gz
+          echo "$(pwd)" >> $GITHUB_PATH
 
       - name: Install cargo-deb
         if: matrix.os == 'ubuntu-latest'
