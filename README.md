@@ -26,6 +26,12 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
+Any Linux distro that uses `apt` (Ubuntu, Debian, Mint, etc):
+
+    echo 'deb [trusted=yes] https://eugene-babichenko.github.io/fixit/ppa ./' >> /etc/apt/sources.list
+    apt update
+    apt install fixit
+
 For Arch Linux users fixit is [available][aur] on AUR (build from source):
 
     yay -S fixit
@@ -173,7 +179,7 @@ Environment variables:
 - Packaging
   - [x] Homebrew
   - [x] AUR
-  - [ ] deb
+  - [x] deb
   - [ ] rpm
   - [ ] NixOS
   - anything else
