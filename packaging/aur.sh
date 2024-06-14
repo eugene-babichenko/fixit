@@ -14,13 +14,13 @@ license=('MIT')
 arch=('x86_64' 'i686' 'aarch64' 'armv7h')
 makedepends=('rust')
 source=("\$pkgname-\$pkgver.tar.gz::\$url/archive/v\$_pkgver.tar.gz")
-sha256sums=("$(wget -O - "$repo/archive/$1.tar.gz" | shasum -a 256 | cut -d ' ' -f 1 | tr -d '\n')")
+sha256sums=("$(wget -q -O- "$repo/archive/$1.tar.gz" | shasum -a 256 | cut -d ' ' -f 1 | tr -d '\n')")
 
 build() {
   cd "\$pkgname-\$_pkgver"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
-  cargo build --frozen --release
+  cargo build --locked --release
 }
 
 package() {
