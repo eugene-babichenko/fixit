@@ -45,15 +45,6 @@ jobs:
             target: aarch64-apple-darwin
             cross: false
     steps:
-      - name: Install cargo-cross
-        if: ${{ matrix.cross }}
-        run: |
-          mkdir cross
-          cd cross
-          gh release download --repo 'cross-rs/cross' --pattern 'cross-x86_64-unknown-linux-musl.tar.gz'
-          tar -xvzf cross-x86_64-unknown-linux-musl.tar.gz
-          echo "$(pwd)" >> $GITHUB_PATH
-
       - name: Install cargo-deb
         if: matrix.os == 'ubuntu-latest'
         run: cargo install cargo-deb
@@ -71,7 +62,11 @@ jobs:
 
       - name: Build (cross)
         if: ${{ matrix.cross }}
-        run: cross $BUILD_FLAGS
+        run: |
+          gh release download --repo 'cross-rs/cross' --pattern 'cross-x86_64-unknown-linux-musl.tar.gz'
+          tar -xvzf cross-x86_64-unknown-linux-musl.tar.gz
+          chmod +x ./cross
+          ./cross $BUILD_FLAGS
 
       - name: Upload binary archive
         run: |
