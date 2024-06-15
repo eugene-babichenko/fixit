@@ -1,6 +1,6 @@
 [package]
 name = "fixit"
-version = "0.3.0-beta"
+version = "0.3.1-beta"
 edition = "2021"
 license = "MIT"
 authors = [ "Yevhenii Babichenko <eugene.babichenko@gmail.com>" ]

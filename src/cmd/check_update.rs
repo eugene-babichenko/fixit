@@ -97,7 +97,7 @@ impl Cmd {
             eprintln!("fixit: new version is available: {update}");
         }
 
-        if res.init || time.checked_sub(res.timestamp) <= Some(self.interval) {
+        if !res.init && time.checked_sub(res.timestamp) <= Some(self.interval) {
             log::debug!("too early");
             return;
         }
