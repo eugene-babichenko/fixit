@@ -1,7 +1,7 @@
 use regex::Regex;
 
 pub fn cargo_wrong_command(cmd: &[String], error: &str) -> Option<Vec<String>> {
-    if &cmd[0] != "cargo" {
+    if !cmd.contains(&"cargo".to_string()) {
         return None;
     }
 

@@ -1,10 +1,11 @@
 pub fn mkdir_missing_parent(cmd: &[String], error: &str) -> Option<Vec<String>> {
-    if &cmd[0] != "mkdir" || !error.contains("no such file or directory") {
+    let (idx, _) = cmd.iter().enumerate().find(|(_, c)| *c == "mkdir")?;
+    if !error.contains("no such file or directory") {
         return None;
     }
 
     let mut res = cmd.to_vec();
-    res.insert(1, "-p".to_string());
+    res.insert(idx + 1, "-p".to_string());
     Some(res)
 }
 

@@ -4,6 +4,7 @@ pub fn git_commit_no_changes(cmd: &[String], error: &str) -> Option<Vec<String>>
         return None;
     }
     let mut res = cmd.to_vec();
-    res.insert(2, "-a".to_string());
+    let (idx, _) = cmd.iter().enumerate().find(|(_, c)| *c == "commit")?;
+    res.insert(idx + 1, "-a".to_string());
     Some(res)
 }

@@ -17,6 +17,7 @@ and this project adheres to
 ### Fixed
 
 - Fix update logic.
+- Make most rules independent of argument placement.
 
 ## v0.2.0-alpha
 

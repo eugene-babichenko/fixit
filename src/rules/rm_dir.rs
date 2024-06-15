@@ -1,10 +1,11 @@
 pub fn rm_dir(cmd: &[String], error: &str) -> Option<Vec<String>> {
-    if &cmd[0] != "rm" || !error.contains("is a directory") {
+    let (idx, _) = cmd.iter().enumerate().find(|(_, c)| *c == "rm")?;
+    if !error.contains("is a directory") {
         return None;
     }
 
     let mut cmd = cmd.to_vec();
-    cmd.insert(1, "-r".to_string());
+    cmd.insert(idx + 1, "-r".to_string());
     Some(cmd)
 }
 
