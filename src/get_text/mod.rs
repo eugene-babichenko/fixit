@@ -68,7 +68,7 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> 
         return None;
     }
 
-    let fish_error_highlight_regex = Regex::new(r"\^[~]+\^").unwrap();
+    let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
 
     // FIXME This is a really shitty heuristic to find a line containing the
     // last command and to not break on messages like "command not found: git".
@@ -77,23 +77,25 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> 
     // extracting them out of `wezterm cli get-text --escapes` output. Ideally,
     // we get the functionality to get the output of the last command a-la kitty
     // someday.
-    let stdout: Vec<&str> = stdout.lines().rev().collect();
-    let mut res: Vec<&str> = stdout
+
+    // needed to get exact size iter
+    let stdout: Vec<_> = stdout.lines().collect();
+    // peek into the next line
+    let stdout: Vec<(_, _)> = stdout.iter().circular_tuple_windows().collect();
+    let mut res: Vec<_> = stdout
         .iter()
         .rev()
         .take(depth)
-        .circular_tuple_windows::<(_, _)>()
-        .take_while(|(s_prev, s_curr)| {
+        .take_while(|(s_curr, s_next)| {
             // fish errors for complex commands contain a light highlighting the
             // exact command that failed:
             // time qwerty
             //      ^~~~~^
             // which this algo can confuse for an actual command.
-            !fish_error_highlight_regex.is_match(s_prev)
-                || !s_curr.ends_with(cmd)
-                || s_curr.ends_with(&[": ", cmd].concat())
+            fish_error_highlight_regex.is_match(s_next)
+                || (!s_curr.ends_with(cmd) || s_curr.ends_with(&[": ", cmd].concat()))
         })
-        .map(|s| *s.1)
+        .map(|s| *s.0)
         .collect();
     res.reverse();
     Some(res.join("\n"))
@@ -104,7 +106,7 @@ mod tests {
     use super::find_command_output;
 
     #[test]
-    fn test_command_output_finder() {
+    fn command_output_finder() {
         let output = "
 fixit on ? master [$?!?] is ?? v0.1.0-alpha via ?? v1.78.0
 ? gti
@@ -113,7 +115,27 @@ fish: Unknown command: gti";
         let cmd = "gti";
         assert_eq!(
             expected,
-            find_command_output(cmd, output.to_string().into_bytes(), Some(1000)).unwrap()
+            find_command_output(cmd, output.as_bytes().to_vec(), None).unwrap()
+        );
+    }
+
+    #[test]
+    fn command_output_fish() {
+        let output = "
+fixit on ? master [$?!?] is ?? v0.1.0-alpha via ?? v1.78.0
+? time gti push
+fish: Unknown command: gti
+fish:
+time gti push
+     ^~^";
+        let expected = "fish: Unknown command: gti
+fish:
+time gti push
+     ^~^";
+        let cmd = "time gti push";
+        assert_eq!(
+            expected,
+            find_command_output(cmd, output.as_bytes().to_vec(), None).unwrap()
         );
     }
 }
