@@ -1,6 +1,8 @@
 use std::{env, io, string::FromUtf8Error};
 
 use clap::Parser;
+use itertools::Itertools;
+use regex::Regex;
 use thiserror::Error;
 
 mod kitty;
@@ -66,6 +68,8 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> 
         return None;
     }
 
+    let fish_error_highlight_regex = Regex::new(r"\^[~]+\^").unwrap();
+
     // FIXME This is a really shitty heuristic to find a line containing the
     // last command and to not break on messages like "command not found: git".
     // Ideally we should acknowledge OSC 133 sequences and this should result in
@@ -73,11 +77,23 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> 
     // extracting them out of `wezterm cli get-text --escapes` output. Ideally,
     // we get the functionality to get the output of the last command a-la kitty
     // someday.
+    let stdout: Vec<&str> = stdout.lines().rev().collect();
     let mut res: Vec<&str> = stdout
-        .lines()
+        .iter()
         .rev()
         .take(depth)
-        .take_while(|s| !s.ends_with(cmd) || s.ends_with(&[": ", cmd].concat()))
+        .circular_tuple_windows::<(_, _)>()
+        .take_while(|(s_prev, s_curr)| {
+            // fish errors for complex commands contain a light highlighting the
+            // exact command that failed:
+            // time qwerty
+            //      ^~~~~^
+            // which this algo can confuse for an actual command.
+            !fish_error_highlight_regex.is_match(s_prev)
+                || !s_curr.ends_with(cmd)
+                || s_curr.ends_with(&[": ", cmd].concat())
+        })
+        .map(|s| *s.1)
         .collect();
     res.reverse();
     Some(res.join("\n"))

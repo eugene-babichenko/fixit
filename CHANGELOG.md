@@ -18,6 +18,7 @@ and this project adheres to
 
 - Fix update logic.
 - Make most rules independent of argument placement.
+- On fish searcher could stumble upon the line with fish native error highlight.
 
 ## v0.2.0-alpha
 
