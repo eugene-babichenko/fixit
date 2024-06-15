@@ -14,6 +14,10 @@ and this project adheres to
 - `cp_cmd` - if `cp` was given only one argument assume we wanted to copy in the
   current dir.
 
+### Fixed
+
+- Fix update logic.
+
 ## v0.2.0-alpha
 
 ### Added
