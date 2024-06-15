@@ -11,7 +11,7 @@ use rayon::prelude::*;
 use strsim::normalized_damerau_levenshtein;
 use thiserror::Error;
 
-use crate::{get_text, rules::RULES};
+use crate::{get_text, rules::RULES, shlex::shlex};
 
 use super::check_update;
 
@@ -33,8 +33,6 @@ pub struct Cmd {
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("failed to parse the command")]
-    CmdParse,
     #[error("error while rendering the selection menu")]
     Select(#[from] dialoguer::Error),
     #[error(transparent)]
@@ -64,7 +62,7 @@ impl Cmd {
         bar.set_message("Finding fixes...");
 
         // split command into parts
-        let cmd_split = shlex::split(&self.cmd).ok_or(Error::CmdParse)?;
+        let cmd_split = shlex(&self.cmd);
 
         let time = SystemTime::now();
 
@@ -78,7 +76,7 @@ impl Cmd {
             })
             .flatten()
             .map(|fixed_cmd| {
-                let fixed_cmd = shlex::try_join(fixed_cmd.iter().map(|s| s as &str)).unwrap();
+                let fixed_cmd = fixed_cmd.join(" ");
                 let similarity = normalized_damerau_levenshtein(&self.cmd, &fixed_cmd);
                 log::debug!("fixed command: `{fixed_cmd}`; similarity: {similarity}");
                 (fixed_cmd, similarity)

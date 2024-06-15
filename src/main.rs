@@ -6,6 +6,7 @@ use thiserror::Error;
 mod cmd;
 mod get_text;
 mod rules;
+mod shlex;
 
 /// A command line utility that fixes mistakes in your previous command.
 ///

@@ -164,7 +164,7 @@ Environment variables:
 ## Roadmap
 
 - [x] Automatic update check
-- [ ] Deal with complex commands (e.g. env var specification included:
+- [x] Deal with complex commands (e.g. env var specification included:
       `FOO=bar command -arg`)
 - Quick suggestions without re-running commands:
   - Via terminal emulator/multiplexer API
