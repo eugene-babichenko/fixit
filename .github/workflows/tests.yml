@@ -3,6 +3,8 @@ on:
 
 name: Tests
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   fmt:
@@ -45,3 +47,17 @@ jobs:
         env:
           RUST_BACKTRACE: 1
         run: cargo test --locked
+
+  audit:
+    name: Check security advisory database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run cargo-audit
+        run: |
+          gh release download --repo rustsec/rustsec --pattern 'cargo-audit-x86_64-unknown-linux-musl-*.tgz'
+          tar -xvzf cargo-audit-x86_64-unknown-linux-musl-*.tgz
+          cp cargo-audit-x86_64-unknown-linux-musl-*/cargo-audit .
+          ./cargo-audit audit
