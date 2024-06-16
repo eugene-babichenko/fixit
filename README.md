@@ -1,5 +1,9 @@
 # `fixit`
 
+![GitHub Release](https://img.shields.io/github/v/release/eugene-babichenko/fixit)
+[![Build status](https://github.com/eugene-babichenko/fixit/actions/workflows/tests.yml/badge.svg)](https://github.com/eugene-babichenko/fixit/actions)
+[![Coverage Status](https://coveralls.io/repos/github/eugene-babichenko/fixit/badge.svg)](https://coveralls.io/github/eugene-babichenko/fixit)
+
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/eugene-babichenko/fixit)
 
 `fixit` is a terminal application that fixes mistakes in your commands inspired
