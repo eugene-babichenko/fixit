@@ -102,3 +102,32 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
     fixes.dedup_by_key(|(fix, _)| fix.clone());
     fixes.into_iter().map(|(fix, _)| fix).collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn duplicate() {
+        fn r(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+            Box::new(Some(vec!["git".to_string()]).into_iter())
+        }
+        let rules: &[Rule] = &[r, r];
+        assert_eq!(vec!["git"], find_fixes("", vec!["".to_string()], rules));
+    }
+
+    #[test]
+    fn sorting() {
+        fn r1(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+            Box::new(Some(vec!["git".to_string()]).into_iter())
+        }
+        fn r2(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+            Box::new(Some(vec!["qwerty".to_string()]).into_iter())
+        }
+        let rules: &[Rule] = &[r2, r1];
+        assert_eq!(
+            vec!["git".to_string(), "qwerty".to_string()],
+            find_fixes("gti", vec!["".to_string()], rules)
+        );
+    }
+}
