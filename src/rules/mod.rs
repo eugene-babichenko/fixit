@@ -1,3 +1,8 @@
+use rayon::prelude::*;
+use strsim::normalized_damerau_levenshtein;
+
+use crate::shlex::shlex;
+
 /// Process command and its results to return a possible correct command. The
 /// result doesn't necesserily have to be a perfect one, it is _just a
 /// possibility_. In fact, you can be optimistic with what you return.
@@ -71,3 +76,29 @@ define_rules!(
     rm_dir,
     sudo,
 );
+
+pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String> {
+    // split command into parts
+    let cmd_split = shlex(cmd);
+
+    let mut fixes: Vec<_> = rules
+        .par_iter()
+        .map(|fixer| {
+            output
+                .par_iter()
+                .map(|error| fixer(&cmd_split, &error.to_lowercase()).par_bridge())
+                .flatten()
+        })
+        .flatten()
+        .map(|fixed_cmd| {
+            let fixed_cmd = fixed_cmd.join(" ");
+            let similarity = normalized_damerau_levenshtein(cmd, &fixed_cmd);
+            log::debug!("fixed command: `{fixed_cmd}`; similarity: {similarity}");
+            (fixed_cmd, similarity)
+        })
+        .collect();
+
+    fixes.sort_by(|(_, left), (_, right)| right.partial_cmp(left).unwrap());
+    fixes.dedup_by_key(|(fix, _)| fix.clone());
+    fixes.into_iter().map(|(fix, _)| fix).collect()
+}

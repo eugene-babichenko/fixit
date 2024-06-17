@@ -7,11 +7,12 @@ use clap::Parser;
 use dialoguer::{console::Term, theme::ColorfulTheme, Select};
 use indicatif::ProgressBar;
 use log::log_enabled;
-use rayon::prelude::*;
-use strsim::normalized_damerau_levenshtein;
 use thiserror::Error;
 
-use crate::{get_text, rules::RULES, shlex::shlex};
+use crate::{
+    get_text,
+    rules::{find_fixes, RULES},
+};
 
 use super::check_update;
 
@@ -61,27 +62,7 @@ impl Cmd {
 
         bar.set_message("Finding fixes...");
 
-        // split command into parts
-        let cmd_split = shlex(&self.cmd);
-
-        let time = SystemTime::now();
-
-        let mut fixes: Vec<_> = RULES
-            .par_iter()
-            .map(|fixer| {
-                output
-                    .par_iter()
-                    .map(|error| fixer(&cmd_split, &error.to_lowercase()).par_bridge())
-                    .flatten()
-            })
-            .flatten()
-            .map(|fixed_cmd| {
-                let fixed_cmd = fixed_cmd.join(" ");
-                let similarity = normalized_damerau_levenshtein(&self.cmd, &fixed_cmd);
-                log::debug!("fixed command: `{fixed_cmd}`; similarity: {similarity}");
-                (fixed_cmd, similarity)
-            })
-            .collect();
+        let fixes = find_fixes(&self.cmd, output, RULES);
 
         if log_enabled!(log::Level::Debug) {
             let elapsed = SystemTime::now().duration_since(time).unwrap();
@@ -91,10 +72,6 @@ impl Cmd {
                 elapsed.as_millis()
             );
         }
-
-        fixes.sort_by(|(_, left), (_, right)| right.partial_cmp(left).unwrap());
-        fixes.dedup_by_key(|(fix, _)| fix.clone());
-        let fixes: Vec<_> = fixes.into_iter().map(|(fix, _)| fix).collect();
 
         bar.finish_and_clear();
 
