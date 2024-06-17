@@ -138,4 +138,28 @@ time gti push
             find_command_output(cmd, output.as_bytes().to_vec(), None).unwrap()
         );
     }
+
+    #[test]
+    fn no_relevant_command() {
+        let output = "
+fixit on ? master [??] is ?? v0.3.1-beta via ?? v1.78.0
+? thefuck
+Traceback (most recent call last):
+  File \"/Users/eugene/Library/Python/3.8/bin/thefuck\", line 5, in <module>
+    from thefuck.entrypoints.main import main
+ModuleNotFoundError: No module named 'thefuck'
+
+fixit on ? master [??] is ?? v0.3.1-beta via ?? v1.78.0
+? help
+
+fixit on ? master [??] is ?? v0.3.1-beta via ?? v1.78.0
+? yay
+fish: Unknown command: yay
+            ";
+        let cmd = "time gti push";
+        assert_eq!(
+            None,
+            find_command_output(cmd, output.as_bytes().to_vec(), None)
+        )
+    }
 }
