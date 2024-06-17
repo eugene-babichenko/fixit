@@ -10,6 +10,10 @@ and this project adheres to
 
 ## v0.3.1-beta
 
+### Added
+
+- New rule: `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
+
 ### Fixed
 
 - Update checking.

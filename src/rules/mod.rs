@@ -63,6 +63,7 @@ define_rules!(
     command_not_found,
     cp_cwd,
     cp_dir,
+    git_add_all_lowercase,
     git_commit_no_changes,
     git_no_upstream,
     git_wrong_command,

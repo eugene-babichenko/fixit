@@ -157,6 +157,7 @@ Environment variables:
 - `cp_cwd` - `cp` came with only one argument, maybe you want to copy to the
   current dir?
 - `cp_dir` - add `-R` to `cp` when you are attempting to copy a directory.
+- `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
 - `git_commit_no_changes` - suggest using `git commit -a`.
 - `git_no_upstream` - set upstream branch when pushing.
 - `git_wrong_command` - fix misspelled git commands.
