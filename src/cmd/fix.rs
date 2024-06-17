@@ -92,9 +92,9 @@ impl Cmd {
             );
         }
 
-        fixes.sort_by(|left, right| right.1.partial_cmp(&left.1).unwrap());
-        fixes.dedup_by_key(|v| v.1);
-        let fixes: Vec<_> = fixes.into_iter().map(|v| v.0).collect();
+        fixes.sort_by(|(_, left), (_, right)| right.partial_cmp(left).unwrap());
+        fixes.dedup_by_key(|(fix, _)| fix.clone());
+        let fixes: Vec<_> = fixes.into_iter().map(|(fix, _)| fix).collect();
 
         bar.finish_and_clear();
 

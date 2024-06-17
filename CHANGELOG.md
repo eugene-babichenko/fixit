@@ -17,6 +17,7 @@ and this project adheres to
 ### Fixed
 
 - Update checking.
+- Search results deduplication.
 
 ## v0.3.0-beta
 
