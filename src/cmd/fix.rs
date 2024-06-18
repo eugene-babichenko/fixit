@@ -10,11 +10,9 @@ use log::log_enabled;
 use thiserror::Error;
 
 use crate::{
-    get_text,
+    check_update, get_text,
     rules::{find_fixes, RULES},
 };
-
-use super::check_update;
 
 #[derive(Parser)]
 /// Fix a failing command. This command is not meant for direct use by the

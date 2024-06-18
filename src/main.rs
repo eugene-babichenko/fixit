@@ -3,6 +3,7 @@ use std::{error::Error as _, process::exit};
 use clap::{Parser, Subcommand};
 use thiserror::Error;
 
+mod check_update;
 mod cmd;
 mod get_text;
 mod rules;

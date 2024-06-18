@@ -3,7 +3,7 @@ use std::{env::args, fs::canonicalize, io};
 use clap::{Parser, Subcommand};
 use thiserror::Error;
 
-use super::check_update;
+use crate::check_update;
 
 #[derive(Parser)]
 pub struct Cmd {
