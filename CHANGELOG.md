@@ -8,16 +8,23 @@ and this project adheres to
 
 ## Unreleased
 
-## v0.3.1-beta
-
 ### Added
 
 - New rule: `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
 
+### Changed
+
+- Respect `FIXIT_UPDATE_CHECK_INTERVAL` when an updated fails.
+
+### Fixed
+
+- Search results deduplication.
+
+## v0.3.1-beta
+
 ### Fixed
 
 - Update checking.
-- Search results deduplication.
 
 ## v0.3.0-beta
 

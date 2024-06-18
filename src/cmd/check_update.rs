@@ -86,7 +86,8 @@ fn check(
 
     let Some(git_tag) = git_tag() else {
         log::error!("failed to fetch the latest git tag");
-        return None;
+        write_update_file(update_file, &res);
+        return res.result.map(|v| v.to_string());
     };
 
     let remote_version = match Version::parse(git_tag.strip_prefix('v').unwrap_or(&git_tag)) {
@@ -103,25 +104,30 @@ fn check(
         None
     };
 
-    let dir = update_file.parent().unwrap();
-    let _ = create_dir_all(dir);
-    let file = match File::create(update_file) {
-        Ok(f) => f,
-        Err(err) => {
-            log::error!("failed to open update.json: {err}");
-            return None;
-        }
-    };
-
     let res = CheckResult {
         result: res,
         timestamp: time,
         init: false,
     };
 
-    let _ = serde_json::to_writer(file, &res);
+    write_update_file(update_file, &res);
 
     res.result.map(|v| v.to_string())
+}
+
+fn write_update_file(update_file: &Path, content: &CheckResult) {
+    let dir = update_file.parent().unwrap();
+    let _ = create_dir_all(dir);
+    let file = match File::create(update_file) {
+        Ok(f) => f,
+        Err(err) => {
+            log::error!("failed to open {}: {err}", update_file.display());
+            return;
+        }
+    };
+    if let Err(err) = serde_json::to_writer(file, content) {
+        log::error!("failed to write {}: {err}", update_file.display());
+    }
 }
 
 #[cfg(not(tarpaulin_include))]
@@ -129,7 +135,7 @@ fn fetch_git_tag() -> Option<String> {
     let response = match ureq::get(RELEASE_ROUTE).call() {
         Ok(response) => response,
         Err(err) => {
-            log::debug!("couldn't get the latest release: {err}");
+            log::error!("couldn't get the latest release: {err}");
             return None;
         }
     };
@@ -137,7 +143,7 @@ fn fetch_git_tag() -> Option<String> {
     let release: Release = match response.into_json() {
         Ok(release) => release,
         Err(err) => {
-            log::debug!("couldn't decode the response: {err}");
+            log::error!("couldn't decode the response: {err}");
             return None;
         }
     };
@@ -173,21 +179,30 @@ mod tests {
     }
 
     #[rstest]
-    #[case("", "0.3.0-beta", true)]
-    #[case("{\"result\": null, \"timestamp\": 0}", "0.3.0-beta", true)]
-    #[case("{\"result\": \"0.2.1-beta\", \"timestamp\": 0}", "0.3.0-beta", true)]
-    #[case("", "0.2.0-alpha", false)]
-    #[case("{\"result\": null, \"timestamp\": 0}", "0.2.0-alpha", false)]
+    #[case("", Some("0.3.0-beta"), true)]
+    #[case("{\"result\": null, \"timestamp\": 0}", Some("0.3.0-beta"), true)]
+    #[case(
+        "{\"result\": \"0.2.1-beta\", \"timestamp\": 0}",
+        Some("0.3.0-beta"),
+        true
+    )]
+    #[case("", Some("0.2.0-alpha"), false)]
+    #[case("{\"result\": null, \"timestamp\": 0}", Some("0.2.0-alpha"), false)]
     #[case(
         "{\"result\": \"0.2.0-alpha\", \"timestamp\": 0}",
-        "0.2.0-alpha",
+        Some("0.2.0-alpha"),
         false
     )]
-    #[case(&format!("{{\"result\": \"0.2.0-alpha\", \"timestamp\": {} }}", curr_time()), "0.2.0-alpha", false)]
-    #[case(&format!("{{\"result\": \"0.3.0-alpha\", \"timestamp\": {} }}", curr_time()), "0.3.0-alpha", true)]
-    fn update(#[case] update_file_contents: &str, #[case] git_tag: &str, #[case] expected: bool) {
+    #[case(&format!("{{\"result\": \"0.2.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.2.0-alpha"), false)]
+    #[case(&format!("{{\"result\": \"0.3.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.3.0-alpha"), true)]
+    #[case("", None, false)]
+    fn update(
+        #[case] update_file_contents: &str,
+        #[case] git_tag: Option<&str>,
+        #[case] expected: bool,
+    ) {
         let git_tag_fn = || -> Option<String> {
-            let mut git_tag = git_tag.to_string();
+            let mut git_tag = git_tag?.to_string();
             git_tag.insert(0, 'v');
             Some(git_tag)
         };
@@ -201,7 +216,7 @@ mod tests {
 
         let r = check(f.path(), LOCAL_VERSION, git_tag_fn, INTERVAL);
         if expected {
-            assert_eq!(Some(git_tag), r.as_deref());
+            assert_eq!(git_tag, r.as_deref());
         } else {
             assert_eq!(None, r);
         }
