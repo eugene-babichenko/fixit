@@ -13,7 +13,6 @@ pub fn command_not_found(cmd: &[String], error: &str) -> Vec<Vec<String>> {
         return Vec::new();
     };
     let path = env::split_paths(&path);
-
     command_not_found_impl(cmd, error, path)
 }
 
@@ -62,7 +61,10 @@ fn detect_command(cmd: &[String], error: &str) -> Option<usize> {
 
 #[cfg(test)]
 mod test {
-    use rstest::rstest;
+    use std::{collections::HashSet, fs::File, hash::RandomState};
+
+    use rstest::{fixture, rstest};
+    use tempfile::{tempdir, TempDir};
 
     use crate::shlex::shlex;
 
@@ -78,5 +80,41 @@ mod test {
     fn detect_command_test(#[case] error: &str) {
         let cmd = shlex(TEST_CMD);
         assert_eq!(Some(TEST_CMD_IDX), detect_command(&cmd, error));
+    }
+
+    #[fixture]
+    fn path_and_tempdir() -> (Vec<PathBuf>, TempDir, TempDir) {
+        let d = tempdir().unwrap();
+        File::create(d.path().join("git")).unwrap();
+        File::create(d.path().join("tig")).unwrap();
+        let d2 = tempdir().unwrap();
+        File::create(d2.path().join("lazygit")).unwrap();
+        let path = vec![d.path().to_owned(), d2.path().to_owned()];
+        (path, d, d2)
+    }
+
+    #[rstest]
+    fn test_rule(path_and_tempdir: (Vec<PathBuf>, TempDir, TempDir)) {
+        let expected = vec![
+            shlex("LOG=info git status"),
+            shlex("LOG=info tig status"),
+            shlex("LOG=info lazygit status"),
+        ];
+
+        let error = "bash: gti: command not found";
+
+        let fixed = command_not_found_impl(&shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+
+        let expected: HashSet<_, RandomState> = HashSet::from_iter(expected.into_iter());
+        let fixed = HashSet::from_iter(fixed.into_iter());
+
+        assert_eq!(expected, fixed);
+    }
+
+    #[rstest]
+    fn test_rule_no_match(path_and_tempdir: (Vec<PathBuf>, TempDir, TempDir)) {
+        let error = "error: Using `cargo install` to install the binaries from the package in current working directory is no longer supported, use `cargo install --path .` instead. Use `cargo build` if you want to simply build the package.";
+        let fixed = command_not_found_impl(&shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+        assert_eq!(Vec::<Vec<String>>::new(), fixed);
     }
 }
