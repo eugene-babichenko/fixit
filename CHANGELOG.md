@@ -19,6 +19,7 @@ and this project adheres to
 ### Fixed
 
 - Search results deduplication.
+- `command_not_found`: bash command detection.
 
 ## v0.3.1-beta
 
