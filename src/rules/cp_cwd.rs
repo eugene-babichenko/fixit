@@ -1,5 +1,5 @@
 pub fn cp_cwd(cmd: &[String], _error: &str) -> Option<Vec<String>> {
-    if !cmd.contains(&"cd".to_string()) || !cmd.len() == 2 {
+    if !cmd.contains(&"cp".to_string()) || !cmd.len() == 2 {
         return None;
     }
 
@@ -10,7 +10,17 @@ pub fn cp_cwd(cmd: &[String], _error: &str) -> Option<Vec<String>> {
 
 #[cfg(test)]
 mod tests {
+    use crate::shlex::shlex;
+
     use super::cp_cwd;
+
+    #[test]
+    fn cp_cwd_success() {
+        let cmd = shlex("cp target/release/fixit");
+        let error = "";
+        let expected = shlex("cp target/release/fixit .");
+        assert_eq!(Some(expected), cp_cwd(&cmd, error));
+    }
 
     #[test]
     pub fn non_cp_cmd() {

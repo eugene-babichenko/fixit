@@ -8,3 +8,18 @@ pub fn brew_update_upgrade(cmd: &[String], error: &str) -> Option<Vec<String>> {
     cmd[idx] = "upgrade".to_string();
     Some(cmd)
 }
+
+#[cfg(test)]
+mod test {
+    use crate::shlex::shlex;
+
+    use super::*;
+
+    #[test]
+    fn brew_update() {
+        let cmd = shlex("brew update git");
+        let error = "error: this command updates brew itself, and does not take formula names.";
+        let expected = shlex("brew upgrade git");
+        assert_eq!(Some(expected), brew_update_upgrade(&cmd, error));
+    }
+}
