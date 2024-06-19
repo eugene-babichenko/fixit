@@ -29,5 +29,6 @@ thiserror = "1"
 ureq = { version = "2.9.7", features = ["json"] }
 
 [dev-dependencies]
+httpmock = "0.7.0"
 rstest = "0.21.0"
 tempfile = "3.10.1"

@@ -18,7 +18,7 @@ pub struct Cmd {
     enabled: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct Release {
     tag_name: String,
 }
@@ -34,7 +34,6 @@ struct CheckResult {
 const RELEASE_ROUTE: &str = "https://api.github.com/repos/eugene-babichenko/fixit/releases/latest";
 
 impl Cmd {
-    #[cfg(not(tarpaulin_include))]
     pub fn check(self) {
         let Some(p) = update_file_path() else {
             log::debug!("could not get update file path");
@@ -44,7 +43,7 @@ impl Cmd {
         let res = check(
             p.as_path(),
             env!("CARGO_PKG_VERSION"),
-            fetch_git_tag,
+            RELEASE_ROUTE,
             self.interval,
         );
 
@@ -57,7 +56,7 @@ impl Cmd {
 fn check(
     update_file: &Path,
     local_version: &str,
-    git_tag: impl Fn() -> Option<String>,
+    release_route: &str,
     interval: u64,
 ) -> Option<String> {
     let time = SystemTime::now()
@@ -84,7 +83,7 @@ fn check(
         return None;
     }
 
-    let Some(git_tag) = git_tag() else {
+    let Some(git_tag) = fetch_git_tag(release_route) else {
         log::error!("failed to fetch the latest git tag");
         write_update_file(update_file, &res);
         return res.result.map(|v| v.to_string());
@@ -130,9 +129,8 @@ fn write_update_file(update_file: &Path, content: &CheckResult) {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
-fn fetch_git_tag() -> Option<String> {
-    let response = match ureq::get(RELEASE_ROUTE).call() {
+fn fetch_git_tag(route: &str) -> Option<String> {
+    let response = match ureq::get(route).call() {
         Ok(response) => response,
         Err(err) => {
             log::error!("couldn't get the latest release: {err}");
@@ -161,7 +159,10 @@ fn update_file_path() -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
+    use std::{
+        io::{Seek, Write},
+        str::FromStr,
+    };
 
     use rstest::rstest;
     use tempfile::NamedTempFile;
@@ -179,46 +180,84 @@ mod tests {
     }
 
     #[rstest]
-    #[case("", Some("0.3.0-beta"), true)]
-    #[case("{\"result\": null, \"timestamp\": 0}", Some("0.3.0-beta"), true)]
+    #[case("", Some("0.3.0-beta"), true, true)]
+    #[case("{\"result\": null, \"timestamp\": 0}", Some("0.3.0-beta"), true, true)]
     #[case(
         "{\"result\": \"0.2.1-beta\", \"timestamp\": 0}",
         Some("0.3.0-beta"),
+        true,
         true
     )]
-    #[case("", Some("0.2.0-alpha"), false)]
-    #[case("{\"result\": null, \"timestamp\": 0}", Some("0.2.0-alpha"), false)]
+    #[case("", Some("0.2.0-alpha"), false, true)]
+    #[case(
+        "{\"result\": null, \"timestamp\": 0}",
+        Some("0.2.0-alpha"),
+        false,
+        true
+    )]
     #[case(
         "{\"result\": \"0.2.0-alpha\", \"timestamp\": 0}",
         Some("0.2.0-alpha"),
-        false
+        false,
+        true
     )]
-    #[case(&format!("{{\"result\": \"0.2.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.2.0-alpha"), false)]
-    #[case(&format!("{{\"result\": \"0.3.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.3.0-alpha"), true)]
-    #[case("", None, false)]
+    #[case(&format!("{{\"result\": \"0.2.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.2.0-alpha"), false, false)]
+    #[case(&format!("{{\"result\": \"0.3.0-alpha\", \"timestamp\": {} }}", curr_time()), Some("0.3.0-alpha"), true, false)]
+    #[case("", None, false, true)]
+    #[case("", Some("x0.3.0-alpha"), false, true)]
     fn update(
         #[case] update_file_contents: &str,
         #[case] git_tag: Option<&str>,
-        #[case] expected: bool,
+        #[case] update_expected: bool,
+        #[case] request_expected: bool,
     ) {
-        let git_tag_fn = || -> Option<String> {
-            let mut git_tag = git_tag?.to_string();
-            git_tag.insert(0, 'v');
-            Some(git_tag)
-        };
-
-        println!("{update_file_contents}");
+        let server = httpmock::MockServer::start();
+        let update_mock = server.mock(|when, then| {
+            let r = git_tag.map(|t| Release {
+                tag_name: t.to_string(),
+            });
+            when.method("GET").path("/release");
+            then.status(200).json_body_obj(&r);
+        });
 
         let f = NamedTempFile::new().unwrap();
         f.as_file()
             .write_all(update_file_contents.as_bytes())
             .unwrap();
 
-        let r = check(f.path(), LOCAL_VERSION, git_tag_fn, INTERVAL);
-        if expected {
+        let r = check(f.path(), LOCAL_VERSION, &server.url("/release"), INTERVAL);
+
+        if request_expected {
+            update_mock.assert();
+        }
+
+        if update_expected {
+            f.as_file().rewind().unwrap();
+            let c: CheckResult = serde_json::from_reader(f.as_file()).unwrap();
             assert_eq!(git_tag, r.as_deref());
+            assert_eq!(c.result, git_tag.map(|t| Version::from_str(&t).unwrap()));
+            assert_eq!(c.init, false);
         } else {
             assert_eq!(None, r);
         }
+    }
+
+    #[test]
+    fn test_update_request_with_real_data() {
+        let server = httpmock::MockServer::start();
+        let update_mock = server.mock(|when, then| {
+            when.method("GET").path("/release");
+            then.status(200).body_from_file("tests/data/release.json");
+        });
+        let tag = fetch_git_tag(&server.url("/release"));
+        update_mock.assert();
+        assert_eq!(Some("v0.3.1-beta"), tag.as_deref());
+    }
+
+    #[test]
+    fn test_update_request_no_response() {
+        let server = httpmock::MockServer::start();
+        let tag = fetch_git_tag(&server.url("/release"));
+        assert_eq!(None, tag);
     }
 }
