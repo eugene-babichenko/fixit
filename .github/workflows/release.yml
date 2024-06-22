@@ -112,6 +112,31 @@ jobs:
           path:
             ./_site
 
+  update_homebrew_tap:
+    name: Update Homebrew tap
+    runs-on: ubuntu-latest
+    needs: publish_release
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          path: fixit
+      - name: Checkout homebrew-fixit
+        uses: actions/checkout@v4
+        with:
+          repository: eugene-babichenko/homebrew-fixit
+          token: ${{ secrets.HOMEBREW_FORMULA_TOKEN }}
+          path: homebrew-fixit
+      - name: Generate and push new Homebrew formula
+        run: |
+          cd $GITHUB_WORKSPACE/homebrew-fixit
+          $GITHUB_WORKSPACE/fixit/packaging/homebrew.sh ${{ github.ref_name }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions-bot@users.noreply.github.com"
+          git add Formula/fixit.rb
+          git commit -m "chore: release ${{ github.ref_name }}"
+          git push
+
   publish_dep_repo:
     name: Publish deb repository on GitGub Pages
     permissions:

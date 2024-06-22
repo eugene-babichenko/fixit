@@ -5,7 +5,7 @@ set -xeuo pipefail
 prefix="https://github.com/eugene-babichenko/fixit/releases/download/$1/fixit-$1"
 version="${1//v}"
 
-cat > fixit.rb <<EOF
+cat > Formula/fixit.rb <<EOF
 class Fixit < Formula
   desc "A utility to fix mistakes in your commands."
   homepage "https://github.com/eugene-babichenko/fixit"
