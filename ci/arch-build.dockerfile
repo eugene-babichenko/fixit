@@ -1,2 +1,2 @@
 FROM archlinux
-RUN pacman -Syu && pacman -S base-devel rust
+RUN pacman --noconfirm -Syu && pacman --noconfirm -S base-devel rust
