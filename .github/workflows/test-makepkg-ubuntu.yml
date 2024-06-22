@@ -17,7 +17,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action
+      - uses: docker/build-push-action@v6
         with:
           context: .
           dockerfile: ci/arch-build.dockerfile
