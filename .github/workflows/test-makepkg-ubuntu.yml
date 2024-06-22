@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  hello:
+  build_docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,9 +21,14 @@ jobs:
         with:
           context: .
           dockerfile: ci/arch-build.dockerfile
+  hello:
+    runs-on: ubuntu-latest
+    needs: build_docker
+    container:
+      image: ghcr.io/eugene-babichenko/fixit
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.github_token }}
+    steps:
+      - uses: actions/checkout@v4
       - run: sudo apt update && sudo apt install -y makepkg && ./packaging/aur.sh v0.3.1-beta
-        container:
-          image: ghcr.io/eugene-babichenko/fixit
-          credentials:
-            username: ${{ github.actor }}
-            password: ${{ secrets.github_token }}
