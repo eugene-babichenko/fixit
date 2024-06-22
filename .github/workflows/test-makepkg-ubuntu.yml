@@ -3,10 +3,27 @@ on:
 
 name: Test makepkg on ubuntu
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/login-action
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action
+        with:
+          context: .
+          dockerfile: ci/arch-build.dockerfile
       - run: sudo apt update && sudo apt install -y makepkg && ./packaging/aur.sh v0.3.1-beta
-
+        container:
+          image: ghcr.io/eugene-babichenko/fixit
+          credentials:
+            username: ${{ github.actor }}
+            password: ${{ secrets.github_token }}
