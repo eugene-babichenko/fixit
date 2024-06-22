@@ -8,5 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ./packaging/aur.sh v0.3.1-beta
+      - run: apt update && apt install makepkg && ./packaging/aur.sh v0.3.1-beta
 
