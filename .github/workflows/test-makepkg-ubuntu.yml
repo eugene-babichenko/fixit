@@ -20,7 +20,7 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          dockerfile: ci/arch-build.dockerfile
+          file: ci/arch-build.dockerfile
   hello:
     runs-on: ubuntu-latest
     needs: build_docker
