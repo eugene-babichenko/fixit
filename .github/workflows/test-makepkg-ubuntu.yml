@@ -7,6 +7,6 @@ jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
-      - using: actions/checkout@v4
+      - uses: actions/checkout@v4
       - run: ./packaging/aur.sh
 
