@@ -21,6 +21,7 @@ jobs:
         with:
           context: .
           file: ci/arch-build.dockerfile
+          push: true
   hello:
     runs-on: ubuntu-latest
     needs: build_docker
