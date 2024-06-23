@@ -20,6 +20,7 @@ arch=('x86_64' 'i686' 'aarch64' 'armv7h')
 makedepends=('rust')
 source=("\$pkgname-\$pkgver.tar.gz::\$url/archive/v\$_pkgver.tar.gz")
 sha256sums=('$checksum')
+options=('!lto')
 
 build() {
   cd "\$pkgname-\$_pkgver"
