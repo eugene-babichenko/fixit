@@ -8,37 +8,12 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build_docker:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/metadata-action@v5
-        id: meta
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ci/arch-build.dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
   hello:
     runs-on: ubuntu-latest
-    needs: build_docker
-    container:
-      image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.github_token }}
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt update && sudo apt install -y makepkg && ./packaging/aur.sh v0.3.1-beta
+      - run: |
+        docker build -f ci/arch-build.dockerfile -t ci .
+        docker run -v $PWD:/project -w /project ci bash -c "./packaging/aur.sh v0.3.1-beta"
+        cat PKGBUILD
+        cat .SRCINFO
