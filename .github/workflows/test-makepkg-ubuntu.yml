@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-        docker build -f ci/arch-build.dockerfile -t ci .
-        docker run -v $PWD:/project -w /project ci bash -c "./packaging/aur.sh v0.3.1-beta"
-        cat PKGBUILD
-        cat .SRCINFO
+          docker build -f ci/arch-build.dockerfile -t ci .
+          docker run -v $PWD:/project -w /project ci bash -c "./packaging/aur.sh v0.3.1-beta"
+          cat PKGBUILD
+          cat .SRCINFO
