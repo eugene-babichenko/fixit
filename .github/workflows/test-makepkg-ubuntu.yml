@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: archlinux
+      options: --user root
     steps:
       - uses: actions/checkout@v4
       - run: |
