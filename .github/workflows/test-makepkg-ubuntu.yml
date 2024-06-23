@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: archlinux
-      options: --user nobody
     steps:
       - uses: actions/checkout@v4
       - run: |
-          sudo pacman --noconfirm -Syu
-          sudo pacman --noconfirm -S base-devel sudo wget rust
-          ./packaging/aur.sh v0.3.1-beta
+          ls -la .
+          pacman --noconfirm -Syu
+          pacman --noconfirm -S base-devel sudo wget rust
+          sudo -u nobody ./packaging/aur.sh v0.3.1-beta
           cat PKGBUILD
           cat .SRCINFO
