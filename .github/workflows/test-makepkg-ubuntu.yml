@@ -10,9 +10,9 @@ env:
 jobs:
   build_docker:
     runs-on: ubuntu-latest
-      permissions:
-        contents: read
-        packages: write
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
