@@ -3,22 +3,17 @@ on:
 
 name: Test makepkg on ubuntu
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   hello:
     runs-on: ubuntu-latest
     container:
       image: archlinux
     steps:
-      - uses: actions/checkout@v4
       - run: |
-          ls -la .
-          usermod -a -G root nobody
           pacman --noconfirm -Syu
-          pacman --noconfirm -S base-devel sudo wget rust
+          pacman --noconfirm -S base-devel sudo git wget rust
+          git clone --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} fixit
+          cd fixit
           sudo -u nobody ./packaging/aur.sh v0.3.1-beta
           cat PKGBUILD
           cat .SRCINFO
