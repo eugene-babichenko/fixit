@@ -10,10 +10,14 @@ env:
 jobs:
   hello:
     runs-on: ubuntu-latest
+    container:
+      image: archlinux
     steps:
       - uses: actions/checkout@v4
       - run: |
-          docker build -f ci/arch-build.dockerfile -t ci .
-          sudo docker run -v $PWD:/project -w /project -u nobody ci ./packaging/aur.sh v0.3.1-beta
+          pacman --noconfirm -Syu
+          pacman --noconfirm -S base-devel sudo wget rust
+          useradd nobody
+          sudo -u nobody ./packaging/aur.sh v0.3.1-beta
           cat PKGBUILD
           cat .SRCINFO
