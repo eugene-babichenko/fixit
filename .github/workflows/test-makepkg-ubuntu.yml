@@ -5,9 +5,11 @@ name: Test makepkg on ubuntu
 
 jobs:
   hello:
-    matrix:
-      - aur_repo:
-      - aur_repo: -bin
+    strategy:
+      fail-fast: false
+      matrix:
+        - aur_repo:
+        - aur_repo: -bin
     runs-on: ubuntu-latest
     container:
       image: archlinux
