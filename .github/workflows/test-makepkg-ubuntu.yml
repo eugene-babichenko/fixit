@@ -23,7 +23,7 @@ jobs:
           chown -R build fixit
           cd fixit
           sudo -u build ./packaging/aur${{ matrix.aur_repo }}.sh v0.3.1-beta
-          sudo -u build eval "$(ssh-agent -s)"
+          sudo -u build bash -c 'eval "$(ssh-agent -s)"'
           sudo -u build mkdir ~/.ssh
           sudo -u build echo "${{ secrets.AUR_SSH_KEY }}" >> ~/.ssh/id_ed25519
           sudo -u build chmod 600 ~/.ssh/id_ed25519
