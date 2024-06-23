@@ -17,7 +17,6 @@ jobs:
       - run: |
           pacman --noconfirm -Syu
           pacman --noconfirm -S base-devel sudo wget rust
-          useradd nobody
           sudo -u nobody ./packaging/aur.sh v0.3.1-beta
           cat PKGBUILD
           cat .SRCINFO
