@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.4.0-beta
+
 ### Added
 
 - New rule: `git_add_all_lowercase` - correct `git add -a` to `git add -A`.

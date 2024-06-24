@@ -728,7 +728,7 @@ checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
 name = "fixit"
-version = "0.3.1-beta"
+version = "0.4.0-beta"
 dependencies = [
  "clap",
  "ctrlc",
