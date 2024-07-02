@@ -32,9 +32,9 @@ select a fix it is run automatically and added to your shell history.
 
 Any Linux distro that uses `apt` (Ubuntu, Debian, Mint, etc):
 
-    echo 'deb [trusted=yes] https://eugene-babichenko.github.io/fixit/ppa ./' >> /etc/apt/sources.list
-    apt update
-    apt install fixit
+    echo "deb [arch=$(dpkg --print-architecture) trusted=yes] https://eugene-babichenko.github.io/fixit/ppa ./" | sudo tee /etc/apt/sources.list.d/fixit.list > /dev/null
+    sudo apt update
+    sudo apt install fixit
 
 For Arch Linux users fixit is [available][aur] on AUR (build from source):
 
