@@ -2,57 +2,51 @@
 
 set -xeuo pipefail
 
-hashname="https://github.com/eugene-babichenko/fixit/releases/download/$1/fixit-$1"
-version="$(echo "$1" | sed 's/v//' | sed 's/-/_/')"
-sha256_x86_64="$(wget -q -O - "$hashname-x86_64-unknown-linux-musl.sha256")"
-sha256_aarch64="$(wget -q -O - "$hashname-aarch64-unknown-linux-musl.sha256")"
+pkgname='fixit'
+version="$1"
+repo="eugene-babichenko/$pkgname"
+url="https://github.com/$repo"
+hashname="$url/releases/download/v$version/fixit-v$version"
+releases="$url/releases/download/v$version/$pkgname-v$version"
+tree="https://raw.githubusercontent.com/$repo/v$version"
+readme="$tree/README.md"
+license="$tree/LICENSE"
+
+function pkgbuild_platform() {
+  suffix='unknown-linux-musl'
+  cat <<EOF
+source_$1=(
+  '$pkgname-$1-$version.tar.gz::$releases-$1-$suffix.tar.gz'
+  '$readme'
+  '$license'
+)
+sha256sums_$1=(
+  '$(wget -q -O - "$hashname-$1-$suffix.sha256")'
+  'SKIP'
+  'SKIP'
+)
+EOF
+}
 
 cat > PKGBUILD <<EOF
 # Maintainer: Eugene Babichenko <eugene.babichenko@gmail.com>
 
-pkgname=fixit-bin
-_pkgname="\${pkgname/-bin}"
-pkgver=$version
-_pkgver="\${pkgver//_/-}"
+pkgname=$pkgname-bin
+pkgver=${version/-/_}
 pkgrel=1
-_repo="eugene-babichenko/\$_pkgname"
-url="https://github.com/\$_repo"
-pkgdesc="A utility to fix mistakes in your commands."
+url='$url'
+pkgdesc='A utility to fix mistakes in your commands.'
 license=('MIT')
 arch=('x86_64' 'aarch64')
 
-_releases="\$url/releases/download/v\$_pkgver/\$_pkgname-v\$_pkgver"
-_tree="https://raw.githubusercontent.com/\$_repo/v\$_pkgver"
-_readme="\$_tree/README.md"
-_license="\$_tree/LICENSE"
-_linux="unknown-linux-musl"
+$(pkgbuild_platform "x86_64")
 
-source_x86_64=(
-  "\$_pkgname-x86_64-\$_pkgver.tar.gz::\$_releases-x86_64-\$_linux.tar.gz"
-  "\$_readme"
-  "\$_license"
-)
-sha256sums_x86_64=(
-  "$sha256_x86_64"
-  'SKIP'
-  'SKIP'
-)
-
-source_aarch64=(
-  "\$_pkgname-aarch64-\$_pkgver.tar.gz::\$_releases-aarch64-\$_linux.tar.gz"
-  "\$_readme"
-  "\$_license"
-)
-sha256sums_aarch64=(
-  "$sha256_aarch64"
-  'SKIP'
-  'SKIP'
-)
+$(pkgbuild_platform "aarch64")
 
 package() {
-  install -Dm755 "\$_pkgname" -t "\$pkgdir/usr/bin"
-  install -Dm644 README.md -t "\$pkgdir/usr/share/doc/\$_pkgname"
-  install -Dm644 LICENSE -t "\$pkgdir/usr/share/licenses/\$_pkgname"
+  install -Dm755 $pkgname -t "\$pkgdir/usr/bin"
+  install -Dm644 README.md -t "\$pkgdir/usr/share/doc/$pkgname"
+  install -Dm644 LICENSE -t "\$pkgdir/usr/share/licenses/$pkgname"
 }
 EOF
 
