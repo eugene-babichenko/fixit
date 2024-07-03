@@ -33,6 +33,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Run cargo clippy
         run: cargo clippy --locked -- -D warnings
 
@@ -42,6 +45,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run tests
         env:
@@ -54,6 +60,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run cargo-audit
         run: |
@@ -68,6 +77,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run cargo-tarpaulin
         run: |
