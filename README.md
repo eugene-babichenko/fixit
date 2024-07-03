@@ -50,11 +50,7 @@ Using Homebrew/Linuxbrew:
 
 Installing with Cargo (you will need the [Rust toolchain][rust]):
 
-    cargo install --git https://github.com/eugene-babichenko/fixit
-
-Installing pre-built binaries using [`cargo-binstall`][binstall]:
-
-    cargo binstall --git https://github.com/eugene-babichenko/fixit fixit
+    cargo install fixit-cli
 
 You can also download pre-built binaries for Linux (static binaries) and macOS
 from [Releases][releases].

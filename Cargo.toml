@@ -1,6 +1,6 @@
 [package]
-name = "fixit"
-version = "0.4.0-beta"
+name = "fixit-cli"
+version = "0.4.0"
 edition = "2021"
 license = "MIT"
 authors = [ "Yevhenii Babichenko <eugene.babichenko@gmail.com>" ]
@@ -9,6 +9,10 @@ repository = "https://github.com/eugene-babichenko/fixit"
 readme = "README.md"
 categories = [ "command-line-utilities" ]
 description = "A utility to fix mistakes in your commands."
+
+[[bin]]
+name = "fixit"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env"] }
