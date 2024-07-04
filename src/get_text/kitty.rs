@@ -3,9 +3,7 @@ use std::{env, process::Command};
 use crate::get_text::{find_command_output, stdout_to_string};
 
 pub fn get_text_kitty(cmd: &str, depth: usize) -> Option<String> {
-    if env::var("TERM") != Ok("xterm-kitty".to_string())
-        && env::var("KITTY_INSTALLATION_DIR").is_err()
-    {
+    if env::var("KITTY_INSTALLATION_DIR").is_err() {
         return None;
     }
 
