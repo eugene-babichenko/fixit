@@ -5,6 +5,7 @@ use itertools::Itertools;
 use regex::Regex;
 use thiserror::Error;
 
+mod iterm;
 mod kitty;
 mod rerun_command;
 mod tmux;
@@ -45,6 +46,10 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
         }
         if let Some(output) = wezterm::get_text_wezterm(cmd, config.depth) {
             log::debug!("got output from wezterm");
+            return Ok(Some(vec![output]));
+        }
+        if let Some(output) = iterm::get_text_iterm(cmd, config.depth) {
+            log::debug!("got output form iterm");
             return Ok(Some(vec![output]));
         }
     }

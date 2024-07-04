@@ -173,7 +173,7 @@ Environment variables:
     - [x] kitty
       - [x] Get only the last command output with shell integration.
     - [x] WezTerm
-    - [ ] iTerm2
+    - [x] iTerm2
     - [ ] Zellij
   - [ ] Get terminal logs by running an arbitrary command.
   - [ ] Get the output of the previous command by running an arbitrary command.
