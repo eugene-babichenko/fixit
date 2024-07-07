@@ -6,7 +6,7 @@ pre-commit:
     rustfmt:
       run: cargo fmt
     clippy:
-      run: cargo clippy -- -D warnings
+      run: cargo clippy
     shellcheck:
       glob: "**/*.{sh}"
       run: shellcheck {all_files}

@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 use std::{error::Error as _, process::exit};
 
 use clap::{Parser, Subcommand};
