@@ -1,13 +1,9 @@
-use std::{env, process::Command};
+use std::env;
 
-use crate::get_text::{find_command_output, stdout_to_string};
+use super::GetTextResult;
 
-pub fn get_text_kitty(cmd: &str, depth: usize) -> Option<String> {
-    if env::var("KITTY_INSTALLATION_DIR").is_err() {
-        return None;
-    }
-
-    log::debug!("getting the command output from kitty");
+pub fn get_text(_depth: usize) -> Option<GetTextResult> {
+    env::var("KITTY_INSTALLATION_DIR").ok()?;
 
     let shell_integration = env::var("KITTY_SHELL_INTEGRATION").is_ok();
     let extent = if shell_integration {
@@ -17,19 +13,14 @@ pub fn get_text_kitty(cmd: &str, depth: usize) -> Option<String> {
         "all"
     };
 
-    let output = Command::new("kitty")
-        .args(["@", "get-text", "--extent", extent])
-        .output()
-        .map_err(|e| log::error!("failed to get output from kitty: {e}"))
-        .ok()?;
-
-    if !output.status.success() {
-        return None;
-    }
-
-    if shell_integration {
-        stdout_to_string(output.stdout).ok()
-    } else {
-        find_command_output(cmd, output.stdout, Some(depth))
-    }
+    Some(GetTextResult {
+        cmd: "kitty",
+        args: vec![
+            "@".to_string(),
+            "get-text".to_string(),
+            "--extent".to_string(),
+            extent.to_string(),
+        ],
+        needs_processing: !shell_integration,
+    })
 }

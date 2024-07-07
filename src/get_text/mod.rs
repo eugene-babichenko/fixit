@@ -1,4 +1,4 @@
-use std::{env, io, string::FromUtf8Error};
+use std::{env, io, process::Command, string::FromUtf8Error};
 
 use clap::Parser;
 use itertools::Itertools;
@@ -31,26 +31,40 @@ pub enum Error {
     CmdOutput(#[from] FromUtf8Error),
 }
 
+pub struct GetTextResult {
+    cmd: &'static str,
+    args: Vec<String>,
+    needs_processing: bool,
+}
+
 pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error> {
     if config.quick {
         // Terminal multiplexers go first. Everything must go in the alphanumeric order.
-        if let Some(output) = tmux::get_text_tmux(cmd, config.depth) {
-            log::debug!("got output from tmux");
-            return Ok(Some(vec![output]));
-        }
+        let get_text = [
+            tmux::get_text,
+            kitty::get_text,
+            wezterm::get_text,
+            iterm::get_text,
+        ];
 
-        // Then we look through supported terminal emulators.
-        if let Some(output) = kitty::get_text_kitty(cmd, config.depth) {
-            log::debug!("got output from kitty");
-            return Ok(Some(vec![output]));
-        }
-        if let Some(output) = wezterm::get_text_wezterm(cmd, config.depth) {
-            log::debug!("got output from wezterm");
-            return Ok(Some(vec![output]));
-        }
-        if let Some(output) = iterm::get_text_iterm(cmd, config.depth) {
-            log::debug!("got output form iterm");
-            return Ok(Some(vec![output]));
+        for get_text in get_text {
+            let maybe_get_text_result = get_text(config.depth);
+            if let Some(get_text_result) = maybe_get_text_result {
+                if let Ok(output) = Command::new(get_text_result.cmd)
+                    .args(&get_text_result.args)
+                    .output()
+                {
+                    let command_output = if get_text_result.needs_processing {
+                        find_command_output(cmd, output.stdout, config.depth)
+                    } else {
+                        Some(stdout_to_string(output.stdout)?)
+                    };
+                    if let Some(command_output) = command_output {
+                        log::debug!("got fast output");
+                        return Ok(Some(vec![command_output]));
+                    }
+                }
+            }
         }
     }
 
@@ -61,9 +75,7 @@ pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String, Error> {
     String::from_utf8(stdout).map_err(Into::into)
 }
 
-pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> Option<String> {
-    let depth = depth.unwrap_or(usize::MAX);
-
+pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<String> {
     let stdout = stdout_to_string(stdout)
         .map_err(|e| log::debug!("failed to stringify the command output: {e}"))
         .ok()?;
@@ -108,6 +120,8 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: Option<usize>) -> 
 
 #[cfg(test)]
 mod tests {
+    use std::usize;
+
     use super::find_command_output;
 
     #[test]
@@ -120,7 +134,7 @@ fish: Unknown command: gti";
         let cmd = "gti";
         assert_eq!(
             expected,
-            find_command_output(cmd, output.as_bytes().to_vec(), None).unwrap()
+            find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX).unwrap()
         );
     }
 
@@ -140,7 +154,7 @@ time gti push
         let cmd = "time gti push";
         assert_eq!(
             expected,
-            find_command_output(cmd, output.as_bytes().to_vec(), None).unwrap()
+            find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX).unwrap()
         );
     }
 
@@ -164,7 +178,7 @@ fish: Unknown command: yay
         let cmd = "time gti push";
         assert_eq!(
             None,
-            find_command_output(cmd, output.as_bytes().to_vec(), None)
+            find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX)
         )
     }
 }

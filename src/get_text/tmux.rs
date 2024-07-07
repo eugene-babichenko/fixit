@@ -1,21 +1,18 @@
-use std::{env, process::Command};
+use std::env;
 
-use crate::get_text::find_command_output;
+use super::GetTextResult;
 
-pub fn get_text_tmux(cmd: &str, depth: usize) -> Option<String> {
+pub fn get_text(depth: usize) -> Option<GetTextResult> {
     env::var("TMUX").ok()?;
 
-    log::debug!("getting the command output from tmux");
-
-    let output = Command::new("tmux")
-        .args(["capture-pane", "-p", "-S", &format!("-{}", depth)])
-        .output()
-        .map_err(|e| log::error!("failed to get output from tmux: {e}"))
-        .ok()?;
-
-    if !output.status.success() {
-        return None;
-    }
-
-    find_command_output(cmd, output.stdout, None)
+    Some(GetTextResult {
+        cmd: "tmux",
+        args: vec![
+            "capture-pane".to_string(),
+            "-p".to_string(),
+            "-S".to_string(),
+            format!("-{}", depth),
+        ],
+        needs_processing: true,
+    })
 }

@@ -1,6 +1,6 @@
-use std::{env, process::Command};
+use std::env;
 
-use crate::get_text::find_command_output;
+use super::GetTextResult;
 
 /// This is an AppleScript that gets the contents of the current session
 const SCRIPT: &str = r#"
@@ -11,17 +11,12 @@ tell application "iTerm2"
 end tell
 "#;
 
-pub fn get_text_iterm(cmd: &str, depth: usize) -> Option<String> {
-    if env::var("ITERM_SESSION_ID").is_err() {
-        return None;
-    }
+pub fn get_text(_depth: usize) -> Option<GetTextResult> {
+    env::var("ITERM_SESSION_ID").ok()?;
 
-    log::debug!("getting the command output from iTerm");
-
-    let output = Command::new("osascript")
-        .args(["-e", SCRIPT])
-        .output()
-        .ok()?;
-
-    find_command_output(cmd, output.stdout, Some(depth))
+    Some(GetTextResult {
+        cmd: "osascript",
+        args: vec!["-e".to_string(), SCRIPT.to_string()],
+        needs_processing: true,
+    })
 }
