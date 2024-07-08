@@ -1,0 +1,11 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+hex = "0.4.3"
+sha2 = "0.10.8"
+ureq = "2.9.7"
+xshell = "0.2.6"

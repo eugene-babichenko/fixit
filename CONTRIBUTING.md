@@ -12,7 +12,6 @@ dependencies:
 
 - The Rust toolchain.
 - Prettier for markdown formatting.
-- ShellCheck for linting shell scripts
 - lefthook for git pre-commit hooks (optional but advised).
 
 ## Markdown formatting
