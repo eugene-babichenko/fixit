@@ -13,6 +13,10 @@ and this project adheres to
 - Support for getting command output from iTerm2.
 - rules: `sudo` now reacts to `operation not permitted` messages.
 
+### Fixed
+
+- rules: `cp_cwd` false positives.
+
 ## v0.4.0-beta
 
 ### Added
