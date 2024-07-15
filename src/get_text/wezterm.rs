@@ -13,6 +13,6 @@ pub fn get_text(depth: usize) -> Option<GetTextResult> {
             "--start-line".to_string(),
             format!("-{depth}"),
         ],
-        needs_processing: false,
+        needs_processing: true,
     })
 }

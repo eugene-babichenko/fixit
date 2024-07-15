@@ -60,7 +60,7 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
                         Some(stdout_to_string(output.stdout)?)
                     };
                     if let Some(command_output) = command_output {
-                        log::debug!("got fast output");
+                        log::debug!("got fast output: {command_output}");
                         return Ok(Some(vec![command_output]));
                     }
                 }
@@ -180,5 +180,25 @@ fish: Unknown command: yay
             None,
             find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX)
         )
+    }
+
+    #[test]
+    fn similar_commands() {
+        let output = "fixit on  master [!?] is 📦 v0.4.0 via 🦀 v1.78.0 took 8s
+❯ cp ./target/debug/fixit /bin
+cp: /bin/fixit: Operation not permitted
+
+fixit on  master [!?] is 📦 v0.4.0 via 🦀 v1.78.0
+❯ cp ./target/debug/fixit
+usage: cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file target_file
+       cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file ... target_directory";
+        let cmd = "cp ./target/debug/fixit";
+        let expected =
+            "usage: cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file target_file
+       cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file ... target_directory";
+        assert_eq!(
+            Some(expected.to_string()),
+            find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX)
+        );
     }
 }
