@@ -1,9 +1,8 @@
-pub fn cp_cwd(cmd: &[String], _error: &str) -> Option<Vec<String>> {
+pub fn cp_cwd(mut cmd: Vec<String>, _error: &str) -> Option<Vec<String>> {
     if !cmd.contains(&"cp".to_string()) || !cmd.len() == 2 {
         return None;
     }
 
-    let mut cmd = cmd.to_vec();
     cmd.push(".".to_string());
     Some(cmd)
 }
@@ -19,12 +18,12 @@ mod tests {
         let cmd = shlex("cp target/release/fixit");
         let error = "";
         let expected = shlex("cp target/release/fixit .");
-        assert_eq!(Some(expected), cp_cwd(&cmd, error));
+        assert_eq!(Some(expected), cp_cwd(cmd, error));
     }
 
     #[test]
     pub fn non_cp_cmd() {
-        let cmd = &["git".to_string(), "push".to_string()];
+        let cmd = shlex("git push");
         let error = "";
         assert_eq!(None, cp_cwd(cmd, error));
     }

@@ -1,6 +1,6 @@
 use regex::Regex;
 
-pub fn git_wrong_command(cmd: &[String], error: &str) -> Option<Vec<String>> {
+pub fn git_wrong_command(mut cmd: Vec<String>, error: &str) -> Option<Vec<String>> {
     if !error.contains("not a git command") {
         log::debug!("does not contain a matching error message");
         return None;
@@ -18,26 +18,24 @@ pub fn git_wrong_command(cmd: &[String], error: &str) -> Option<Vec<String>> {
         .captures_iter(error)
         .map(|c| c.extract::<1>().1[0])
         .next()?;
-    let mut res = cmd.to_vec();
-    res[old_cmd_idx] = new_cmd.to_string();
-    Some(res)
+    cmd[old_cmd_idx] = new_cmd.to_string();
+    Some(cmd)
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::shlex::shlex;
+
     use super::git_wrong_command;
 
     #[test]
     fn git_pusk() {
-        let cmd = &["git".to_string(), "pusk".to_string()];
+        let cmd = shlex("git pusk");
         let error = "git: 'pusk' is not a git command. See 'git --help'.
 
 The most similar command is
         push";
 
-        assert_eq!(
-            Some(vec!["git".to_string(), "push".to_string()]),
-            git_wrong_command(cmd, error)
-        );
+        assert_eq!(Some(shlex("git push")), git_wrong_command(cmd, error));
     }
 }

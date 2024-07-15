@@ -1,12 +1,11 @@
 const ERROR: &str = "using `cargo install` to install the binaries";
 
-pub fn cargo_install_cwd(cmd: &[String], error: &str) -> Option<Vec<String>> {
+pub fn cargo_install_cwd(mut cmd: Vec<String>, error: &str) -> Option<Vec<String>> {
     if !error.contains(ERROR) {
         return None;
     }
-    let mut res = cmd.to_vec();
-    res.extend_from_slice(&["--path".to_string(), ".".to_string()]);
-    Some(res)
+    cmd.extend_from_slice(&["--path".to_string(), ".".to_string()]);
+    Some(cmd)
 }
 
 #[cfg(test)]
@@ -22,7 +21,7 @@ mod test {
         let expected = shlex("cargo install --path .");
         assert_eq!(
             Some(expected),
-            cargo_install_cwd(&cmd, &error.to_lowercase())
+            cargo_install_cwd(cmd, &error.to_lowercase())
         );
     }
 }

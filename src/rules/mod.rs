@@ -33,15 +33,15 @@ use crate::shlex::shlex;
 /// and can be run in an iterator, you are still advised to use `rayon`, which
 /// is already included as a dependency.
 ///
-/// `cmd: &[String]` is there to reduce unnecessary cloning when there are no
+/// `cmd: Vec<String>` is there to reduce unnecessary cloning when there are no
 /// fixes and an owned instance of `Vec<String>` is not required.
 /// `cmd: &[&str]` have been used initially, but was replaced to produce
 /// cleaner code in fixers.
-pub type Rule = fn(cmd: &[String], error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send>;
+pub type Rule = fn(cmd: Vec<String>, error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send>;
 
 macro_rules! wrap_rule {
     ($name:ident) => {
-        |cmd: &[String], error: &str| -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+        |cmd: Vec<String>, error: &str| -> Box<dyn Iterator<Item = Vec<String>> + Send> {
             Box::new($name::$name(cmd, error).into_iter())
         }
     };
@@ -86,7 +86,7 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
         .map(|fixer| {
             output
                 .par_iter()
-                .map(|error| fixer(&cmd_split, &error.to_lowercase()).par_bridge())
+                .map(|error| fixer(cmd_split.clone(), &error.to_lowercase()).par_bridge())
                 .flatten()
         })
         .flatten()
@@ -109,7 +109,7 @@ mod tests {
 
     #[test]
     fn duplicate() {
-        fn r(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+        fn r(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
             Box::new(Some(vec!["git".to_string()]).into_iter())
         }
         let rules: &[Rule] = &[r, r];
@@ -118,10 +118,10 @@ mod tests {
 
     #[test]
     fn sorting() {
-        fn r1(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+        fn r1(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
             Box::new(Some(vec!["git".to_string()]).into_iter())
         }
-        fn r2(_cmd: &[String], _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
+        fn r2(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
             Box::new(Some(vec!["qwerty".to_string()]).into_iter())
         }
         let rules: &[Rule] = &[r2, r1];

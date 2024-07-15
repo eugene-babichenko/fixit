@@ -1,10 +1,9 @@
-pub fn brew_update_upgrade(cmd: &[String], error: &str) -> Option<Vec<String>> {
+pub fn brew_update_upgrade(mut cmd: Vec<String>, error: &str) -> Option<Vec<String>> {
     if !error.contains("this command updates brew itself") {
         return None;
     }
 
     let (idx, _) = cmd.iter().enumerate().find(|(_, c)| *c == "update")?;
-    let mut cmd = cmd.to_vec();
     cmd[idx] = "upgrade".to_string();
     Some(cmd)
 }
@@ -20,6 +19,6 @@ mod test {
         let cmd = shlex("brew update git");
         let error = "error: this command updates brew itself, and does not take formula names.";
         let expected = shlex("brew upgrade git");
-        assert_eq!(Some(expected), brew_update_upgrade(&cmd, error));
+        assert_eq!(Some(expected), brew_update_upgrade(cmd, error));
     }
 }

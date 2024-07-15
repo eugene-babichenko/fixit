@@ -7,7 +7,7 @@ use std::{
 use rayon::prelude::*;
 use regex::Regex;
 
-pub fn command_not_found(cmd: &[String], error: &str) -> Vec<Vec<String>> {
+pub fn command_not_found(cmd: Vec<String>, error: &str) -> Vec<Vec<String>> {
     let Some(path) = env::var_os("PATH") else {
         log::debug!("$PATH not set");
         return Vec::new();
@@ -17,11 +17,11 @@ pub fn command_not_found(cmd: &[String], error: &str) -> Vec<Vec<String>> {
 }
 
 fn command_not_found_impl(
-    cmd: &[String],
+    cmd: Vec<String>,
     error: &str,
     path: impl Iterator<Item = PathBuf> + Send,
 ) -> Vec<Vec<String>> {
-    let Some(idx) = detect_command(cmd, error) else {
+    let Some(idx) = detect_command(&cmd, error) else {
         return Vec::new();
     };
 
@@ -34,7 +34,7 @@ fn command_not_found_impl(
         .filter_map(|path| {
             let f = path.file_name()?;
             let f = f.to_str()?;
-            let mut r = cmd.to_vec();
+            let mut r = cmd.clone();
             r[idx] = f.to_string();
             Some(r)
         })
@@ -103,7 +103,7 @@ mod test {
 
         let error = "bash: gti: command not found";
 
-        let fixed = command_not_found_impl(&shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+        let fixed = command_not_found_impl(shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
 
         let expected: HashSet<_, RandomState> = HashSet::from_iter(expected.into_iter());
         let fixed = HashSet::from_iter(fixed.into_iter());
@@ -114,7 +114,7 @@ mod test {
     #[rstest]
     fn test_rule_no_match(path_and_tempdir: (Vec<PathBuf>, TempDir, TempDir)) {
         let error = "error: Using `cargo install` to install the binaries from the package in current working directory is no longer supported, use `cargo install --path .` instead. Use `cargo build` if you want to simply build the package.";
-        let fixed = command_not_found_impl(&shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+        let fixed = command_not_found_impl(shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
         assert_eq!(Vec::<Vec<String>>::new(), fixed);
     }
 }
