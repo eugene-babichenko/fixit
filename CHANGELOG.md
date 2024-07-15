@@ -11,6 +11,7 @@ and this project adheres to
 ### Added
 
 - Support for getting command output from iTerm2.
+- rules: `sudo` now reacts to `operation not permitted` messages.
 
 ## v0.4.0-beta
 
