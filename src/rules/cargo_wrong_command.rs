@@ -6,18 +6,11 @@ pub fn cargo_wrong_command(mut cmd: Vec<String>, error: &str) -> Option<Vec<Stri
     }
 
     let regex = Regex::new(r"no\ssuch\scommand:\s`([a-zA-Z-]+)`").unwrap();
-    let old_cmd = regex
-        .captures_iter(error)
-        .map(|c| c.extract::<1>().1[0])
-        .next()?;
+    let old_cmd = regex.captures(error)?.get(1)?.as_str();
     let (old_cmd_idx, _) = cmd.iter().enumerate().find(|(_, cmd)| *cmd == old_cmd)?;
 
     let regex = Regex::new(r"did\syou\smean\s`([a-zA-Z-]+)`").unwrap();
-    let new_cmd = regex
-        .captures_iter(error)
-        .map(|c| c.extract::<1>().1[0])
-        .next()?;
-    cmd[old_cmd_idx] = new_cmd.to_string();
+    cmd[old_cmd_idx] = regex.captures(error)?.get(1)?.as_str().to_string();
     Some(cmd)
 }
 

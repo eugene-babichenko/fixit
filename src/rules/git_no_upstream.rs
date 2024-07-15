@@ -1,14 +1,11 @@
 pub fn git_no_upstream(mut cmd: Vec<String>, error: &str) -> Option<Vec<String>> {
     let regex =
         regex::Regex::new(r"--set-upstream\s([A-Za-z0-9-_./]+)\s([A-Za-z0-9-_./]+)").unwrap();
-    let origin = regex
-        .captures_iter(error)
-        .map(|c| c.extract::<2>())
-        .next()?;
+    let origin = regex.captures(error)?;
     let (idx, _) = cmd.iter().enumerate().find(|(_, s)| *s == "push")?;
     cmd.insert(idx + 1, "--set-upstream".to_string());
-    cmd.insert(idx + 2, origin.1[0].to_string());
-    cmd.insert(idx + 3, origin.1[1].to_string());
+    cmd.insert(idx + 2, origin.get(1)?.as_str().to_string());
+    cmd.insert(idx + 3, origin.get(2)?.as_str().to_string());
     Some(cmd)
 }
 

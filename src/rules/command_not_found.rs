@@ -47,15 +47,12 @@ fn detect_command(cmd: &[String], error: &str) -> Option<usize> {
     let regex_fish = Regex::new(r"fish: unknown command: ([^\s]+)").unwrap();
 
     let regex_list = [regex_bash, regex_zsh, regex_fish];
-    let wrong_cmd = regex_list.iter().find_map(|regex| {
-        regex
-            .captures_iter(error)
-            .map(|c| c.extract::<1>().1[0])
-            .next()
-    })?;
+    let wrong_cmd = regex_list
+        .iter()
+        .find_map(|regex| regex.captures(error)?.get(1))?;
     cmd.iter()
         .enumerate()
-        .find(|(_, c)| *c == wrong_cmd)
+        .find(|(_, c)| *c == wrong_cmd.as_str())
         .map(|(idx, _)| idx)
 }
 
