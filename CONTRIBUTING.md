@@ -31,7 +31,7 @@ should contain a `pub` function named `rule_name` with the following signature:
 ///
 /// - `cmd` - tokenized command, e.g. (["git", "commit", "-m", "initial commit"])
 /// - `error` - the output of the command.
-fn rule_name(cmd: &[String], error: &str) -> T
+fn rule_name(cmd: Vec<String>, error: &str) -> T
 ```
 
 Where `T` is any type implementing `IntoIterator<Item = Vec<String>>`. Normally,
