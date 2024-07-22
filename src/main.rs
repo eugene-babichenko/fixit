@@ -40,8 +40,6 @@ fn run() -> Result<(), Error> {
 
     let args = Args::parse();
 
-    log::debug!("using {} threads", rayon::current_num_threads());
-
     match args.command {
         Commands::Fix(cmd) => cmd.run().map_err(Into::into),
         Commands::Init(cmd) => cmd.run().map_err(Into::into),

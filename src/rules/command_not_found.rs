@@ -4,7 +4,6 @@ use std::{
     path::PathBuf,
 };
 
-use rayon::prelude::*;
 use regex::Regex;
 
 pub fn command_not_found(cmd: Vec<String>, error: &str) -> Vec<Vec<String>> {
@@ -25,8 +24,7 @@ fn command_not_found_impl(
         return Vec::new();
     };
 
-    path.par_bridge()
-        .filter_map(|path| read_dir(path).map(|res| res.par_bridge()).ok())
+    path.filter_map(|path| read_dir(path).ok())
         .flatten()
         .filter_map(|dir_entry_res| dir_entry_res.ok())
         .filter_map(|dir_entry| canonicalize(dir_entry.path()).ok())

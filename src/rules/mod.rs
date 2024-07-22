@@ -1,4 +1,3 @@
-use rayon::prelude::*;
 use strsim::normalized_damerau_levenshtein;
 
 use crate::shlex::shlex;
@@ -15,28 +14,8 @@ use crate::shlex::shlex;
 ///
 /// # Returns
 ///
-/// A list of possible substitutions as tokenized commands. Empty list means no
-/// possible substitutions were found by this fixer.
-///
-/// # Notes
-///
-/// This type reflects what goes into the `FIXERS` constant after the
-/// transformations done inside `define_fixers!`. The actual return ype of
-/// your fixer functions may be anything that implements
-/// `IntoIter<Item = Vec<String>>`. Most likely, you will need `Option` or
-/// `Vec`.
-///
-/// The original intention here was to return `ParallelIterator`. However, it
-/// is not object-safe and dealing with that is a huge pain.
-///
-/// If you need to do multiple things inside the fixer that are time-consuming,
-/// and can be run in an iterator, you are still advised to use `rayon`, which
-/// is already included as a dependency.
-///
-/// `cmd: Vec<String>` is there to reduce unnecessary cloning when there are no
-/// fixes and an owned instance of `Vec<String>` is not required.
-/// `cmd: &[&str]` have been used initially, but was replaced to produce
-/// cleaner code in fixers.
+/// An iterator of possible substitutions as tokenized commands. Empty list
+/// means no possible substitutions were found by this fixer.
 pub type Rule = fn(cmd: Vec<String>, error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send>;
 
 macro_rules! wrap_rule {
@@ -82,14 +61,12 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
     let cmd_split = shlex(cmd);
 
     let mut fixes: Vec<_> = rules
-        .par_iter()
-        .map(|fixer| {
+        .iter()
+        .flat_map(|fixer| {
             output
-                .par_iter()
-                .map(|error| fixer(cmd_split.clone(), &error.to_lowercase()).par_bridge())
-                .flatten()
+                .iter()
+                .flat_map(|error| fixer(cmd_split.clone(), &error.to_lowercase()))
         })
-        .flatten()
         .map(|fixed_cmd| {
             let fixed_cmd = fixed_cmd.join(" ");
             let similarity = normalized_damerau_levenshtein(cmd, &fixed_cmd);
