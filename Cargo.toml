@@ -23,7 +23,7 @@ name = "fixit"
 [dependencies]
 clap = { version = "4", features = ["derive", "env"] }
 ctrlc = "3"
-dialoguer = "0.11"
+dialoguer = { version = "0.11", default-features = false }
 dirs = "5.0.1"
 env_logger = "0.11"
 indicatif = "0.17"
