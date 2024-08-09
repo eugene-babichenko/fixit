@@ -16,7 +16,7 @@ pub struct Config {
     /// Enable searching via WezTerm API
     #[arg(env = "FIXIT_QUICK_ENABLE", default_value_t = true)]
     quick: bool,
-    /// The number of lines to scan from the WezTerm scrollback buffer.
+    /// The number of lines to scan from the scrollback buffer.
     #[arg(env = "FIXIT_QUICK_SEARCH_DEPTH", default_value_t = 1000)]
     depth: usize,
 }

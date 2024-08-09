@@ -10,7 +10,7 @@ use log::log_enabled;
 use thiserror::Error;
 
 use crate::{
-    check_update, get_text,
+    get_text,
     rules::{find_fixes, RULES},
 };
 
@@ -26,8 +26,6 @@ pub struct Cmd {
     page_size: usize,
     #[command(flatten)]
     get_text: crate::get_text::Config,
-    #[command(flatten)]
-    check_update: check_update::Cmd,
 }
 
 #[derive(Debug, Error)]
@@ -40,8 +38,6 @@ pub enum Error {
 
 impl Cmd {
     pub fn run(self) -> Result<(), Error> {
-        self.check_update.check();
-
         let bar = ProgressBar::new_spinner().with_message("Getting command output...");
         bar.enable_steady_tick(Duration::from_millis(100));
 

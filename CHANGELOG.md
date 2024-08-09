@@ -17,6 +17,11 @@ and this project adheres to
 
 - rules: `cp_cwd` false positives.
 
+### Removed
+
+- Update checker: it is hard to test, bloats the dependencies and is completely
+  unnecessary given package managers.
+
 ## v0.4.0-beta
 
 ### Added

@@ -122,15 +122,6 @@ Environment variables:
 - `FIXIT_QUICK_SEARCH_DEPTH` sets the number of lines to get from the scrollback
   buffer in addition to what we see on the screen. The default is `1000`.
 
-### Update checks
-
-`fixit` can check for updates and notify you about them. By default it does so
-once a day. The check is done by querying GitHub releases API. `fixit` does not
-collect any data about you.
-
-- `FIXIT_UPDATE_CHECK_INTERVAL` - the update check interval in secons.
-- `FIXIT_UPDATE_CHECK_ENABLE` - enable update checks. Set to `false` to disable.
-
 ### Logging
 
 Environment variables:
