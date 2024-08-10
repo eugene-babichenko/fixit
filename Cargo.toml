@@ -20,11 +20,23 @@ path = "src/main.rs"
 [package.metadata.deb]
 name = "fixit"
 
+[profile.release]
+# The goal here is to optimize for the binary size without sacrifising any
+# performance mostly by stripping any unnecessary code and data as much as
+# possible on stable rustc.
+strip = "symbols"
+lto = true
+panic = "abort"
+# This does slightly reduce the binary size, but the gains are marginal and not
+# worth the increased compilation time.
+# codegen-units = 1
+
 [dependencies]
+# This project is conscious about its dependencies. Only add them if you really
+# need to. Be aware of crates features, and only enable what is needed.
 clap = { version = "4", features = ["derive", "env"] }
 ctrlc = "3"
 dialoguer = { version = "0.11", default-features = false }
-dirs = "5.0.1"
 env_logger = "0.11"
 indicatif = "0.17"
 itertools = "0.13"
