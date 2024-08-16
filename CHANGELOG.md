@@ -12,6 +12,8 @@ and this project adheres to
 
 - Support for getting command output from iTerm2.
 - rules: `sudo` now reacts to `operation not permitted` messages.
+- rules: react to `nothing added to commit but untracked files present` with
+  `git commit`.
 
 ### Fixed
 

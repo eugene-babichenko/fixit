@@ -49,6 +49,7 @@ define_rules!(
     cp_dir,
     git_add_all_lowercase,
     git_commit_no_changes,
+    git_commit_untracked_files,
     git_no_upstream,
     git_wrong_command,
     mkdir_missing_parent,
