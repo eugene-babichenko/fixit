@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.5.0
+
 ### Added
 
 - Support for getting command output from iTerm2.
