@@ -165,7 +165,6 @@ fn makepkg() {
     let sh = Shell::new().unwrap();
     let srcinfo = cmd!(sh, "makepkg --printsrcinfo").read().unwrap();
     sh.write_file(".SRCINFO", srcinfo).unwrap();
-    cmd!(sh, "makepkg").run().unwrap();
 }
 
 fn aur_bin_platform(version: &str, platform: &str) -> String {

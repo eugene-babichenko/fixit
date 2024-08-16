@@ -11,6 +11,25 @@ permissions:
   contents: write
 
 jobs:
+  crates_io:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify tag matches Cargo.toml version
+        run: |
+          CARGO_VERSION=$(grep -m1 version Cargo.toml | cut -d '"' -f2)
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: Cargo.toml ($CARGO_VERSION) vs Git tag ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{secrets.CARGO_REGISTRY_TOKEN}}
+
   create_release:
     name: Create draft release
     runs-on: ubuntu-latest
@@ -127,3 +146,60 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  update-aur:
+    name: Update AUR repositories
+    runs-on: ubuntu-latest
+    needs: publish_release
+    strategy:
+      matrix:
+        include:
+          - bin: ""
+          - bin: "-bin"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update AUR
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          cargo xtask packaging $VERSION aur${{matrix.bin}}
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+          git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
+          cp PKGBUILD .SRCINFO aur/
+          cd aur
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "chore: release $VERSION"
+          git push origin master
+
+  update-homebrew:
+    name: Update Homebrew formula
+    run-on: ubuntu-latest
+    needs: publish_release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update Homebrew formula
+        VERSION=${GITHUB_REF#refs/tags/v}
+
+        git clone https://github.com/eugene-babichenko/homebrew-fixit.git
+        cargo xtask packaging $VERSION homebrew > ./homebrew-fixit/Formula/fixit.rb
+        cd homebrew-fixit
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git remote set-url origin https://eugene-babichenko:${{ secrets.HOMEBREW_FORMULA_TOKEN }}@github.com/eugene-babichenko/homebrew-fixit.git
+        git add Formula/fixit.rb
+        git commit -m "chore: release $VERSION"
+        git push origin master
