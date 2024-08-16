@@ -185,21 +185,21 @@ jobs:
 
   update-homebrew:
     name: Update Homebrew formula
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: publish_release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Update Homebrew formula
-        VERSION=${GITHUB_REF#refs/tags/v}
-
-        git clone https://github.com/eugene-babichenko/homebrew-fixit.git
-        cargo xtask packaging $VERSION homebrew > ./homebrew-fixit/Formula/fixit.rb
-        cd homebrew-fixit
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git remote set-url origin https://eugene-babichenko:${{ secrets.HOMEBREW_FORMULA_TOKEN }}@github.com/eugene-babichenko/homebrew-fixit.git
-        git add Formula/fixit.rb
-        git commit -m "chore: release $VERSION"
-        git push origin master
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          git clone https://github.com/eugene-babichenko/homebrew-fixit.git
+          cargo xtask packaging $VERSION homebrew > ./homebrew-fixit/Formula/fixit.rb
+          cd homebrew-fixit
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://eugene-babichenko:${{ secrets.HOMEBREW_FORMULA_TOKEN }}@github.com/eugene-babichenko/homebrew-fixit.git
+          git add Formula/fixit.rb
+          git commit -m "chore: release $VERSION"
+          git push origin master
