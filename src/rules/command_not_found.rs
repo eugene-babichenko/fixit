@@ -44,18 +44,13 @@ fn command_not_found_impl(
         .filter_map(|dir_entry_res| dir_entry_res.ok())
         .filter_map(|dir_entry| canonicalize(dir_entry.path()).ok())
         .filter(|path| path.is_file())
-        .filter_map(|path| {
-            let f = path.file_name()?;
-            let f = f.to_str()?;
+        .filter_map(|path| path.file_name()?.to_str().map(String::from))
+        .chain(shell_items)
+        .map(|fix| {
             let mut r = cmd.clone();
-            r[idx] = f.to_string();
-            Some(r)
-        })
-        .chain(shell_items.into_iter().map(|item| {
-            let mut r = cmd.clone();
-            r[idx] = item;
+            r[idx] = fix;
             r
-        }))
+        })
         .collect()
 }
 
