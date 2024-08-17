@@ -12,13 +12,28 @@ pub fn command_not_found(cmd: Vec<String>, error: &str) -> Vec<Vec<String>> {
         return Vec::new();
     };
     let path = env::split_paths(&path);
-    command_not_found_impl(cmd, error, path)
+    let shell_items = get_shell_items();
+    command_not_found_impl(cmd, error, path, shell_items)
+}
+
+fn get_shell_items() -> Vec<String> {
+    match env::var("FIXIT_FNS") {
+        Ok(items) => {
+            if items.contains(' ') {
+                items.split(' ').map(String::from).collect()
+            } else {
+                items.lines().map(String::from).collect()
+            }
+        }
+        Err(_) => Vec::new(),
+    }
 }
 
 fn command_not_found_impl(
     cmd: Vec<String>,
     error: &str,
-    path: impl Iterator<Item = PathBuf> + Send,
+    path: impl Iterator<Item = PathBuf>,
+    shell_items: Vec<String>,
 ) -> Vec<Vec<String>> {
     let Some(idx) = detect_command(&cmd, error) else {
         return Vec::new();
@@ -36,6 +51,11 @@ fn command_not_found_impl(
             r[idx] = f.to_string();
             Some(r)
         })
+        .chain(shell_items.into_iter().map(|item| {
+            let mut r = cmd.clone();
+            r[idx] = item;
+            r
+        }))
         .collect()
 }
 
@@ -85,6 +105,7 @@ mod test {
         let d2 = tempdir().unwrap();
         File::create(d2.path().join("lazygit")).unwrap();
         let path = vec![d.path().to_owned(), d2.path().to_owned()];
+        env::remove_var("FIXIT_FNS");
         (path, d, d2)
     }
 
@@ -98,7 +119,12 @@ mod test {
 
         let error = "bash: gti: command not found";
 
-        let fixed = command_not_found_impl(shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+        let fixed = command_not_found_impl(
+            shlex(TEST_CMD),
+            error,
+            path_and_tempdir.0.into_iter(),
+            Vec::new(),
+        );
 
         let expected: HashSet<_, RandomState> = HashSet::from_iter(expected.into_iter());
         let fixed = HashSet::from_iter(fixed.into_iter());
@@ -109,7 +135,26 @@ mod test {
     #[rstest]
     fn test_rule_no_match(path_and_tempdir: (Vec<PathBuf>, TempDir, TempDir)) {
         let error = "error: Using `cargo install` to install the binaries from the package in current working directory is no longer supported, use `cargo install --path .` instead. Use `cargo build` if you want to simply build the package.";
-        let fixed = command_not_found_impl(shlex(TEST_CMD), error, path_and_tempdir.0.into_iter());
+        let fixed = command_not_found_impl(
+            shlex(TEST_CMD),
+            error,
+            path_and_tempdir.0.into_iter(),
+            Vec::new(),
+        );
         assert_eq!(Vec::<Vec<String>>::new(), fixed);
+    }
+
+    #[rstest]
+    #[case(None, vec![])]
+    #[case(Some(""), vec![])]
+    #[case(Some("a b c"), vec!["a".to_string(), "b".to_string(), "c".to_string()])]
+    #[case(Some("a\nb\nc"), vec!["a".to_string(), "b".to_string(), "c".to_string()])]
+    fn test_get_shell_items(#[case] env_var: Option<&str>, #[case] expected: Vec<String>) {
+        match env_var {
+            Some(value) => env::set_var("FIXIT_FNS", value),
+            None => env::remove_var("FIXIT_FNS"),
+        }
+        let result = get_shell_items();
+        assert_eq!(expected, result);
     }
 }

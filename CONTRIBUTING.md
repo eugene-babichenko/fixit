@@ -56,6 +56,7 @@ All shell support functions should generally follow this pseudocode:
 ```
 function {name}
     last_command = get_last_command()
+    export FIXIT_FNS=functions and aliases from this shell
     fixed_command = {executable} fix $last_command
     if $fixed_command != ""
         run($fixed_command)

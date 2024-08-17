@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- rules: `command_not_found` now includes shell functions and aliases into the
+  search.
+
 ## v0.5.0
 
 ### Added
