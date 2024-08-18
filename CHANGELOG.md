@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.5.1
+
 ### Added
 
 - rules: `command_not_found` now includes shell functions and aliases into the
