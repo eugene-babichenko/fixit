@@ -162,6 +162,9 @@ jobs:
 
       - name: Update AUR
         run: |
+          sudo apt-get update
+          sudo apt-get install -y makepkg
+
           VERSION=${GITHUB_REF#refs/tags/v}
 
           cargo xtask packaging $VERSION aur${{matrix.bin}}
