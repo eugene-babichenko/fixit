@@ -10,6 +10,7 @@ mod kitty;
 mod rerun_command;
 mod tmux;
 mod wezterm;
+mod zellij;
 
 #[derive(Parser)]
 pub struct Config {
@@ -46,6 +47,11 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
             wezterm::get_text,
             iterm::get_text,
         ];
+
+        if let Some(command_output) = zellij::get_text(cmd, config.depth) {
+            log::debug!("got fast output from zellij: {command_output}");
+            return Ok(Some(vec![command_output]));
+        }
 
         for get_text in get_text {
             let maybe_get_text_result = get_text(config.depth);
