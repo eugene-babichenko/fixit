@@ -1,9 +1,12 @@
+name: Release
+
 on:
   push:
     tags:
       - "v*"
 
-name: Release
+env:
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   create_release:
