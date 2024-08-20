@@ -8,6 +8,14 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- Support for quick fixes in Zellij.
+
+### Fixed
+
+- Getting shell functions and aliases in fish.
+
 ## v0.5.1
 
 ### Added
