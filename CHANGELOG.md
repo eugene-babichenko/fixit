@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.6.0
+
 ### Added
 
 - Support for quick fixes in Zellij.

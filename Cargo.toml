@@ -3,7 +3,7 @@ members = [".", "xtask"]
 
 [package]
 name = "fixit-cli"
-version = "0.5.1"
+version = "0.6.0"
 edition = "2021"
 license = "MIT"
 authors = [ "Yevhenii Babichenko <eugene.babichenko@gmail.com>" ]
