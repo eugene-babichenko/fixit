@@ -17,7 +17,7 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
 
           sudo apt-get update
-          sudo apt-get install -y asciidoctor
+          sudo apt-get install -y asciidoc
 
           git clone https://github.com/archlinux/arch-install-scripts.git
           cd arch-install-scripts
