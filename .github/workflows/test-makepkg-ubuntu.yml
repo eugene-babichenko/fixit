@@ -9,28 +9,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - aur_repo:
-          - aur_repo: -bin
+          - bin: ""
+          - bin: "-bin"
     runs-on: ubuntu-latest
-    container:
-      image: archlinux
     steps:
       - run: |
-          pacman --noconfirm -Syu
-          pacman --noconfirm -S base-devel sudo git openssh wget rust
-          useradd -m build
-          git clone --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} fixit
-          chown -R build fixit
-          cd fixit
-          sudo -u build ./packaging/aur${{ matrix.aur_repo }}.sh v0.3.1-beta
-          sudo -u build bash -c 'eval "$(ssh-agent -s)"'
-          sudo -u build mkdir '~/.ssh'
-          sudo -u build bash -c 'echo "${{ secrets.AUR_SSH_KEY }}" >> ~/.ssh/id_ed25519'
-          mkdir '~/.ssh'
-          sudo -u build chmod 600 '~/.ssh/id_ed25519'
-          sudo -u build ssh-add '~/.ssh/id_ed25519'
-          git clone aur@aur.archlinux.org/fixit${{ matrix.aur_repo }}.git aur
-          chown -R build aur
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          git clone https://github.com/archlinux/arch-install-scripts.git
+          cd arch-install-scripts
+          sudo make install
+          cd ..
+
+          cargo xtask packaging $VERSION aur${{matrix.bin}}
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+          git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
+          cp PKGBUILD .SRCINFO aur/
           cd aur
-          sudo -u build cp ../{PKGBUILD,.SRCINFO} .
-          sudo -u build git commit -a -m "chore: release ${{ github.ref_name }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "chore: release $VERSION"
