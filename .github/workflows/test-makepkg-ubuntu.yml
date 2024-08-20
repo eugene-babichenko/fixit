@@ -1,0 +1,46 @@
+on:
+  push:
+
+name: Test makepkg on ubuntu
+
+jobs:
+  hello:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bin: ""
+          - bin: "-bin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          sudo apt-get update
+          sudo apt-get install -y asciidoc
+
+          git clone https://github.com/archlinux/arch-install-scripts.git
+          cd arch-install-scripts
+          sudo make install
+          cd ..
+
+          cargo xtask packaging $VERSION aur${{matrix.bin}}
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+          git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
+          cp PKGBUILD .SRCINFO aur/
+          cd aur
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "chore: release $VERSION"
