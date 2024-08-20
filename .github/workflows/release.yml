@@ -5,14 +5,9 @@ on:
 
 name: Release
 
-env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-permissions:
-  contents: write
-
 jobs:
-  crates_io:
-    name: Publish to crates.io
+  create_release:
+    name: Create draft release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,28 +22,31 @@ jobs:
             exit 1
           fi
 
-      - name: Publish to crates.io
-        run: cargo publish --token ${{secrets.CARGO_REGISTRY_TOKEN}}
+      - name: Extract release notes
+        run: python3 ci/release-notes.py > notes.md
 
-  create_release:
-    name: Create draft release
+      - name: Create draft release
+        run: gh release create ${{ github.ref_name }} --notes-file notes.md --draft
+
+  crates_io:
+    name: Publish to crates.io
+    needs: create_release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create draft release
-        run: gh release create ${{ github.ref_name }} --notes "" --draft
+      - name: Publish to crates.io
+        run: cargo publish --token ${{secrets.CARGO_REGISTRY_TOKEN}}
 
-  build:
-    name: Build binaries
+  publish_release:
+    name: Build binaries and publish release
     needs: create_release
     runs-on: ${{ matrix.os }}
     env:
       BUILD_FLAGS: build --release --locked --target ${{ matrix.target }}
       ARCHIVE_NAME: fixit-${{ github.ref_name }}-${{ matrix.target }}
     strategy:
-      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -100,52 +98,31 @@ jobs:
           cargo deb --target=${{ matrix.target }} --no-build --no-strip
           gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/debian/*.deb
 
-  publish_release:
-    name: Publish release
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Publish release
         run: gh release edit ${{ github.ref_name }} --draft=false
 
-  upload_dep_repo:
-    name: Upload deb repository
+  publish_dep_repo:
+    name: Publish deb repository
     runs-on: ubuntu-latest
     needs: publish_release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Publish repository
+      - name: Publish
         run: |
           mkdir -p _site/ppa
           cd _site/ppa
           gh release download ${{ github.ref_name }} --pattern '*.deb'
           dpkg-scanpackages --multiversion . /dev/null | gzip -9c > Packages.gz
-          cd ../..
-      - name: Upload repository to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path:
-            ./_site
+          cd ..
 
-  publish_dep_repo:
-    name: Publish deb repository on GitGub Pages
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: upload_dep_repo
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git init
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions-bot@users.noreply.github.com'
+          git add -A
+          git commit -m 'deploy'
+          remote="https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
+          git push --force $remote 'master:gh-pages'
 
   update-aur:
     name: Update AUR repositories
