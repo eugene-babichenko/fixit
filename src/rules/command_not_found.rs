@@ -55,7 +55,7 @@ fn command_not_found_impl(
 }
 
 fn detect_command(cmd: &[String], error: &str) -> Option<usize> {
-    let regex_bash = Regex::new(r"bash: ([^\s]+): command not found").unwrap();
+    let regex_bash = Regex::new(r"bash: ([^\s]+): command not found(...)?").unwrap();
     let regex_zsh = Regex::new(r"zsh: command not found: ([^\s]+)").unwrap();
     let regex_fish = Regex::new(r"fish: unknown command: ([^\s]+)").unwrap();
 
@@ -85,6 +85,7 @@ mod test {
 
     #[rstest]
     #[case("bash: gti: command not found")]
+    #[case("bash: gti: command not found...")]
     #[case("zsh: command not found: gti")]
     #[case("fish: unknown command: gti")]
     fn detect_command_test(#[case] error: &str) {
