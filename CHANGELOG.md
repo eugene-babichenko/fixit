@@ -8,6 +8,10 @@ and this project adheres to
 
 ## Unreleased
 
+## Changed
+
+- Remove dependency on `itertools`.
+
 ## v0.6.0
 
 ### Added

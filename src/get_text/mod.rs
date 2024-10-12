@@ -1,7 +1,6 @@
 use std::{env, io, process::Command, string::FromUtf8Error};
 
 use clap::Parser;
-use itertools::Itertools;
 use regex::Regex;
 use thiserror::Error;
 
@@ -91,8 +90,6 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
         return None;
     }
 
-    let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
-
     // FIXME This is a really shitty heuristic to find a line containing the
     // last command and to not break on messages like "command not found: git".
     // Ideally we should acknowledge OSC 133 sequences and this should result in
@@ -101,27 +98,29 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
     // we get the functionality to get the output of the last command a-la kitty
     // someday.
 
-    // needed to get exact size iter
     let stdout: Vec<_> = stdout.lines().collect();
-    // peek into the next line
-    let stdout: Vec<(_, _)> = stdout.iter().circular_tuple_windows().collect();
-    let mut res: Vec<_> = stdout
-        .iter()
-        .rev()
-        .take(depth)
-        .take_while(|(s_curr, s_next)| {
-            // fish errors for complex commands contain a light highlighting the
-            // exact command that failed:
-            // time qwerty
-            //      ^~~~~^
-            // which this algo can confuse for an actual command.
-            fish_error_highlight_regex.is_match(s_next)
-                || (!s_curr.ends_with(cmd) || s_curr.ends_with(&[": ", cmd].concat()))
-        })
-        .map(|s| *s.0)
-        .collect();
-    res.reverse();
-    Some(res.join("\n"))
+
+    if stdout.is_empty() {
+        return None;
+    }
+
+    let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
+
+    let mut first_res_line = 0;
+    for i in (0..stdout.len()).rev().take(depth) {
+        if !stdout[i].ends_with(cmd)
+            || stdout[i].ends_with(&[": ", cmd].concat())
+            || stdout
+                .get(i + 1)
+                .map_or(false, |s| fish_error_highlight_regex.is_match(s))
+        {
+            first_res_line = i;
+        } else {
+            return Some(stdout[first_res_line..].join("\n"));
+        }
+    }
+
+    None
 }
 
 #[cfg(test)]
