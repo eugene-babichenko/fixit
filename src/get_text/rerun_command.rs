@@ -26,3 +26,23 @@ pub fn rerun_command(cmd: &str) -> Result<Option<Vec<String>>, Error> {
 
     Ok(Some(vec![stderr, stdout]))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn success() {
+        let cmd = "echo hello; echo world 1>&2; exit 1";
+        assert_eq!(
+            Some(vec!["world\n".to_string(), "hello\n".to_string()]),
+            rerun_command(cmd).unwrap()
+        );
+    }
+
+    #[test]
+    fn command_ran_successfully() {
+        let cmd = "echo hello; echo world 1>&2";
+        assert_eq!(None, rerun_command(cmd).unwrap());
+    }
+}
