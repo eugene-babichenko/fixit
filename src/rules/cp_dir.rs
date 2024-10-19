@@ -21,4 +21,12 @@ mod tests {
         let expected = shlex("cp -R src/ target/");
         assert_eq!(expected, cp_dir(cmd, error).unwrap());
     }
+
+    #[test]
+    fn other_error() {
+        let cmd = shlex("cp ./target/debug/fixit");
+        let error = "usage: cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file target_file
+    cp [-R [-H | -L | -P]] [-fi | -n] [-aclpSsvXx] source_file ... target_directory";
+        assert_eq!(None, cp_dir(cmd, error));
+    }
 }
