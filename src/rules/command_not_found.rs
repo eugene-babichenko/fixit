@@ -12,20 +12,15 @@ pub fn command_not_found(cmd: Vec<String>, error: &str) -> Vec<Vec<String>> {
         return Vec::new();
     };
     let path = env::split_paths(&path);
-    let shell_items = get_shell_items();
+    let shell_items = get_shell_items(env::var("FIXIT_FNS").unwrap_or_else(|_| String::new()));
     command_not_found_impl(cmd, error, path, shell_items)
 }
 
-fn get_shell_items() -> Vec<String> {
-    match env::var("FIXIT_FNS") {
-        Ok(items) => {
-            if items.contains(' ') {
-                items.split(' ').map(String::from).collect()
-            } else {
-                items.lines().map(String::from).collect()
-            }
-        }
-        Err(_) => Vec::new(),
+fn get_shell_items(items: String) -> Vec<String> {
+    if items.contains(' ') {
+        items.split(' ').map(String::from).collect()
+    } else {
+        items.lines().map(String::from).collect()
     }
 }
 
@@ -141,16 +136,11 @@ mod test {
     }
 
     #[rstest]
-    #[case(None, vec![])]
-    #[case(Some(""), vec![])]
-    #[case(Some("a b c"), vec!["a".to_string(), "b".to_string(), "c".to_string()])]
-    #[case(Some("a\nb\nc"), vec!["a".to_string(), "b".to_string(), "c".to_string()])]
-    fn test_get_shell_items(#[case] env_var: Option<&str>, #[case] expected: Vec<String>) {
-        match env_var {
-            Some(value) => env::set_var("FIXIT_FNS", value),
-            None => env::remove_var("FIXIT_FNS"),
-        }
-        let result = get_shell_items();
+    #[case("", vec![])]
+    #[case("a b c", vec!["a".to_string(), "b".to_string(), "c".to_string()])]
+    #[case("a\nb\nc", vec!["a".to_string(), "b".to_string(), "c".to_string()])]
+    fn test_get_shell_items(#[case] env_var: &str, #[case] expected: Vec<String>) {
+        let result = get_shell_items(env_var.to_string());
         assert_eq!(expected, result);
     }
 }
