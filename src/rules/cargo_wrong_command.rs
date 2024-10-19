@@ -35,4 +35,18 @@ mod tests {
             cargo_wrong_command(cmd, &error.to_string().to_lowercase()).unwrap()
         );
     }
+
+    #[test]
+    fn other_cargo_error() {
+        let cmd = shlex("cargo test --bench");
+        let error = "error: \"--bench\" takes one argument.";
+        assert_eq!(None, cargo_wrong_command(cmd, error));
+    }
+
+    #[test]
+    fn other_command() {
+        let cmd = shlex("ls test");
+        let error = "ls: test: no sycj file or directory";
+        assert_eq!(None, cargo_wrong_command(cmd, error));
+    }
 }

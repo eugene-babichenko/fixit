@@ -24,4 +24,11 @@ mod test {
             cargo_install_cwd(cmd, &error.to_lowercase())
         );
     }
+
+    #[test]
+    fn other_error() {
+        let cmd = shlex("cargo install --path . --test");
+        let error = "cargo install --path . --test";
+        assert_eq!(None, cargo_install_cwd(cmd, error));
+    }
 }
