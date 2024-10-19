@@ -1,8 +1,8 @@
 use std::env;
 
-use super::GetTextResult;
+use super::GetTextCommand;
 
-pub fn get_text(_depth: usize) -> Option<GetTextResult> {
+pub fn get_text(_depth: usize) -> Option<GetTextCommand> {
     env::var("KITTY_INSTALLATION_DIR").ok()?;
 
     let shell_integration = env::var("KITTY_SHELL_INTEGRATION").is_ok();
@@ -13,7 +13,7 @@ pub fn get_text(_depth: usize) -> Option<GetTextResult> {
         "all"
     };
 
-    Some(GetTextResult {
+    Some(GetTextCommand {
         cmd: "kitty",
         args: vec![
             "@".to_string(),

@@ -31,7 +31,7 @@ pub enum Error {
     CmdOutput(#[from] FromUtf8Error),
 }
 
-pub struct GetTextResult {
+pub struct GetTextCommand {
     cmd: &'static str,
     args: Vec<String>,
     needs_processing: bool,
@@ -81,6 +81,10 @@ pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String, Error> {
 }
 
 pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<String> {
+    if stdout.is_empty() {
+        return None;
+    }
+
     let stdout = stdout_to_string(stdout)
         .map_err(|e| log::debug!("failed to stringify the command output: {e}"))
         .ok()?;
@@ -99,10 +103,6 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
     // someday.
 
     let stdout: Vec<_> = stdout.lines().collect();
-
-    if stdout.is_empty() {
-        return None;
-    }
 
     let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
 
@@ -130,6 +130,12 @@ mod tests {
     use super::find_command_output;
 
     #[test]
+    fn command_output_empty() {
+        let cmd = "ls";
+        assert_eq!(None, find_command_output(cmd, vec![], usize::MAX));
+    }
+
+    #[test]
     fn command_output_finder() {
         let output = "
 fixit on ? master [$?!?] is ?? v0.1.0-alpha via ?? v1.78.0
@@ -140,6 +146,16 @@ fish: Unknown command: gti";
         assert_eq!(
             expected,
             find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX).unwrap()
+        );
+    }
+
+    #[test]
+    fn command_output_clipped() {
+        let output = "fish: Unknown command: gti";
+        let cmd = "gti";
+        assert_eq!(
+            None,
+            find_command_output(cmd, output.as_bytes().to_vec(), usize::MAX)
         );
     }
 

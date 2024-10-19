@@ -1,11 +1,11 @@
 use std::env;
 
-use super::GetTextResult;
+use super::GetTextCommand;
 
-pub fn get_text(depth: usize) -> Option<GetTextResult> {
+pub fn get_text(depth: usize) -> Option<GetTextCommand> {
     env::var("TMUX").ok()?;
 
-    Some(GetTextResult {
+    Some(GetTextCommand {
         cmd: "tmux",
         args: vec![
             "capture-pane".to_string(),
