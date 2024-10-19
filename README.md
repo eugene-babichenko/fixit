@@ -165,7 +165,7 @@ Environment variables:
       - [x] Get only the last command output with shell integration.
     - [x] WezTerm
     - [x] iTerm2
-    - [ ] Zellij
+    - [x] Zellij
   - [ ] Get terminal logs by running an arbitrary command.
   - [ ] Get the output of the previous command by running an arbitrary command.
   - [ ] Wrap around shell to read its logs (a la The Fuck instant mode).
