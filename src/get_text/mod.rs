@@ -73,7 +73,7 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
         }
     }
 
-    rerun_command::rerun_command(cmd).map(|maybe_output| maybe_output.map(|(a, b)| vec![a, b]))
+    rerun_command::rerun_command(cmd)
 }
 
 pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String, Error> {
