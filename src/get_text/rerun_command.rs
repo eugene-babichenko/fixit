@@ -6,6 +6,10 @@ pub fn rerun_command(cmd: &str) -> Result<Option<Vec<String>>, Error> {
     // re-run the command in the current shell
     let shell = env::var("SHELL")?;
 
+    rerun_command_impl(cmd, &shell)
+}
+
+fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>, Error> {
     log::debug!("re-running command: {}", &cmd);
     let output = Command::new(shell)
         .arg("-c")
@@ -36,13 +40,13 @@ mod tests {
         let cmd = "echo hello; echo world 1>&2; exit 1";
         assert_eq!(
             Some(vec!["world\n".to_string(), "hello\n".to_string()]),
-            rerun_command(cmd).unwrap()
+            rerun_command_impl(cmd, "/bin/sh").unwrap()
         );
     }
 
     #[test]
     fn command_ran_successfully() {
         let cmd = "echo hello; echo world 1>&2";
-        assert_eq!(None, rerun_command(cmd).unwrap());
+        assert_eq!(None, rerun_command_impl(cmd, "/bin/sh").unwrap());
     }
 }
