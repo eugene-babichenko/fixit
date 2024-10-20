@@ -1,18 +1,14 @@
-use std::env;
+use std::{env, process::Command};
 
-use super::GetTextCommand;
+use super::find_command_output;
 
-pub fn get_text(depth: usize) -> Option<GetTextCommand> {
+pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
     env::var("WEZTERM_EXECUTABLE").ok()?;
 
-    Some(GetTextCommand {
-        cmd: "wezterm",
-        args: vec![
-            "cli".to_string(),
-            "get-text".to_string(),
-            "--start-line".to_string(),
-            format!("-{depth}"),
-        ],
-        needs_processing: true,
-    })
+    let output = Command::new("wezterm")
+        .args(["cli", "get-text", "--start-line", &format!("-{depth}")])
+        .output()
+        .ok()?;
+
+    find_command_output(cmd, output.stdout, depth)
 }

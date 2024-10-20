@@ -1,4 +1,4 @@
-use std::{env, io, process::Command, string::FromUtf8Error};
+use std::{env, io, string::FromUtf8Error};
 
 use clap::Parser;
 use regex::Regex;
@@ -31,44 +31,21 @@ pub enum Error {
     CmdOutput(#[from] FromUtf8Error),
 }
 
-pub struct GetTextCommand {
-    cmd: &'static str,
-    args: Vec<String>,
-    needs_processing: bool,
-}
-
 pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error> {
     if config.quick {
         // Terminal multiplexers go first. Everything must go in the alphanumeric order.
         let get_text = [
             tmux::get_text,
             kitty::get_text,
+            zellij::get_text,
             wezterm::get_text,
             iterm::get_text,
         ];
 
-        if let Some(command_output) = zellij::get_text(cmd, config.depth) {
-            log::debug!("got fast output from zellij: {command_output}");
-            return Ok(Some(vec![command_output]));
-        }
-
         for get_text in get_text {
-            let maybe_get_text_result = get_text(config.depth);
-            if let Some(get_text_result) = maybe_get_text_result {
-                if let Ok(output) = Command::new(get_text_result.cmd)
-                    .args(&get_text_result.args)
-                    .output()
-                {
-                    let command_output = if get_text_result.needs_processing {
-                        find_command_output(cmd, output.stdout, config.depth)
-                    } else {
-                        Some(stdout_to_string(output.stdout)?)
-                    };
-                    if let Some(command_output) = command_output {
-                        log::debug!("got fast output: {command_output}");
-                        return Ok(Some(vec![command_output]));
-                    }
-                }
+            if let Some(command_output) = get_text(cmd, config.depth) {
+                log::debug!("got fast output: {command_output}");
+                return Ok(Some(vec![command_output]));
             }
         }
     }

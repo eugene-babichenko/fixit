@@ -1,8 +1,9 @@
-use std::env;
+use crate::get_text::stdout_to_string;
+use std::{env, process::Command};
 
-use super::GetTextCommand;
+use super::find_command_output;
 
-pub fn get_text(_depth: usize) -> Option<GetTextCommand> {
+pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
     env::var("KITTY_INSTALLATION_DIR").ok()?;
 
     let shell_integration = env::var("KITTY_SHELL_INTEGRATION").is_ok();
@@ -13,14 +14,14 @@ pub fn get_text(_depth: usize) -> Option<GetTextCommand> {
         "all"
     };
 
-    Some(GetTextCommand {
-        cmd: "kitty",
-        args: vec![
-            "@".to_string(),
-            "get-text".to_string(),
-            "--extent".to_string(),
-            extent.to_string(),
-        ],
-        needs_processing: !shell_integration,
-    })
+    let output = Command::new("kitty")
+        .args(["@", "get-text", "--extent", extent])
+        .output()
+        .ok()?;
+
+    if shell_integration {
+        find_command_output(cmd, output.stdout, depth)
+    } else {
+        stdout_to_string(output.stdout).ok()
+    }
 }
