@@ -30,8 +30,6 @@ enum Commands {
 enum Error {
     #[error(transparent)]
     Fix(#[from] cmd::fix::Error),
-    #[error(transparent)]
-    Init(#[from] cmd::init::Error),
 }
 
 fn run() -> Result<(), Error> {
@@ -41,7 +39,10 @@ fn run() -> Result<(), Error> {
 
     match args.command {
         Commands::Fix(cmd) => cmd.run().map_err(Into::into),
-        Commands::Init(cmd) => cmd.run().map_err(Into::into),
+        Commands::Init(cmd) => {
+            cmd.run();
+            Ok(())
+        }
     }
 }
 
