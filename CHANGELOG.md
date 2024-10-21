@@ -8,12 +8,12 @@ and this project adheres to
 
 ## Unreleased
 
-## Added
+### Added
 
 - rules: `command_not_found` correctly processes ellipsis found in some Bash
   implementations.
 
-## Changed
+### Changed
 
 - Remove dependency on `itertools`.
 
