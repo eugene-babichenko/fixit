@@ -1,11 +1,7 @@
-use std::{
-    io,
-    time::{Duration, SystemTime},
-};
+use std::{io, time::SystemTime};
 
 use clap::Parser;
 use dialoguer::{console::Term, theme::ColorfulTheme, Select};
-use indicatif::ProgressBar;
 use log::log_enabled;
 use thiserror::Error;
 
@@ -38,14 +34,10 @@ pub enum Error {
 
 impl Cmd {
     pub fn run(self) -> Result<(), Error> {
-        let bar = ProgressBar::new_spinner().with_message("Getting command output...");
-        bar.enable_steady_tick(Duration::from_millis(100));
-
         let time = SystemTime::now();
 
         let Some(output) = get_text::get_text(self.get_text, &self.cmd)? else {
             eprintln!("The command ran successfully: nothing to fix.");
-            bar.finish_and_clear();
             return Ok(());
         };
 
@@ -53,8 +45,6 @@ impl Cmd {
             let elapsed = SystemTime::now().duration_since(time).unwrap();
             log::debug!("command output in {} milliseconds", elapsed.as_millis());
         }
-
-        bar.set_message("Finding fixes...");
 
         let fixes = find_fixes(&self.cmd, output, RULES);
 
@@ -66,8 +56,6 @@ impl Cmd {
                 elapsed.as_millis()
             );
         }
-
-        bar.finish_and_clear();
 
         if fixes.is_empty() {
             eprintln!("No fixes were found!");

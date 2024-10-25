@@ -17,6 +17,11 @@ and this project adheres to
 
 - Remove dependency on `itertools`.
 
+### Removed
+
+- Progress bar: this software is usually so fast the progress bar is not needed
+  anyways.
+
 ## v0.6.0
 
 ### Added
