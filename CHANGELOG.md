@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.7.0
+
 ### Added
 
 - rules: `command_not_found` correctly processes ellipsis found in some Bash
