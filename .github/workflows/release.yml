@@ -155,7 +155,7 @@ jobs:
       - name: Update AUR
         run: |
           sudo apt-get update
-          sudo apt-get install -y makepkg
+          sudo apt-get install -y pacman-package-manager
 
           VERSION=${GITHUB_REF#refs/tags/v}
 
