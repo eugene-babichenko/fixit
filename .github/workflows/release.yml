@@ -142,6 +142,8 @@ jobs:
   update-aur:
     name: Update AUR repositories
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
     needs: publish_release
     strategy:
       matrix:
@@ -154,29 +156,37 @@ jobs:
 
       - name: Update AUR
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pacman-package-manager
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm rust openssh git
 
-          VERSION=${GITHUB_REF#refs/tags/v}
+          useradd -m -G wheel runner
+          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-          cargo xtask packaging $VERSION aur${{matrix.bin}}
+          chown -R runner:runner .
 
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
-          chmod 600 ~/.ssh/aur
-          echo "Host aur.archlinux.org" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
-          echo "  User aur" >> ~/.ssh/config
-          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+          su runner -c '
+            VERSION=${GITHUB_REF#refs/tags/v}
 
-          git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
-          cp PKGBUILD .SRCINFO aur/
-          cd aur
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add PKGBUILD .SRCINFO
-          git commit -m "chore: release $VERSION"
-          git push origin master
+            mkdir -p ~/.ssh
+            echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+            chmod 600 ~/.ssh/aur
+            echo "Host aur.archlinux.org" >> ~/.ssh/config
+            echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+            echo "  User aur" >> ~/.ssh/config
+            ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+            git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
+
+            cargo xtask packaging $VERSION aur${{ matrix.bin }}
+
+            cp PKGBUILD .SRCINFO aur/
+            cd aur
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add PKGBUILD .SRCINFO
+            git commit -m "chore: release $VERSION"
+            git push origin master
+          '
 
   update-homebrew:
     name: Update Homebrew formula
