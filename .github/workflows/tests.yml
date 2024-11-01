@@ -22,12 +22,15 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm rust openssh git
+          useradd -m -G wheel runner
+          echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Update AUR
         run: |
+          su runner -c '
           VERSION=0.7.0
 
           cargo xtask packaging $VERSION aur${{matrix.bin}}
@@ -47,7 +50,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add PKGBUILD .SRCINFO
           git commit -m "chore: release $VERSION"
-          git push --dry-run origin master
+          git push --dry-run origin master'
 
   fmt:
     name: Code formatters
