@@ -7,6 +7,48 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
+  update-aur:
+    name: Update AUR repositories
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    strategy:
+      matrix:
+        include:
+          - bin: ""
+          - bin: "-bin"
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm rust openssh git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update AUR
+        run: |
+          VERSION=0.7.0
+
+          cargo xtask packaging $VERSION aur${{matrix.bin}}
+
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+
+          git clone ssh://aur@aur.archlinux.org/fixit${{ matrix.bin }}.git aur
+          cp PKGBUILD .SRCINFO aur/
+          cd aur
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "chore: release $VERSION"
+          git push --dry-run origin master
+
   fmt:
     name: Code formatters
     runs-on: ubuntu-latest
