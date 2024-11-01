@@ -30,6 +30,7 @@ jobs:
 
       - name: Update AUR
         run: |
+          chown -R runner:runner .
           su runner -c '
           VERSION=0.7.0
 
