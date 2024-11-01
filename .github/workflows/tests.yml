@@ -37,7 +37,7 @@ jobs:
           cargo xtask packaging $VERSION aur${{matrix.bin}}
 
           mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/aur
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
           echo "Host aur.archlinux.org" >> ~/.ssh/config
           echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
