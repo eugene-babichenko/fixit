@@ -2,9 +2,13 @@ use std::{env, process::Command};
 
 use crate::get_text::{stdout_to_string, Error};
 
-pub fn rerun_command(cmd: &str) -> Result<Option<Vec<String>>, Error> {
+pub fn rerun_command(cmd: &str, powershell: bool) -> Result<Option<Vec<String>>, Error> {
     // re-run the command in the current shell
-    let shell = env::var("SHELL")?;
+    let shell = if powershell {
+        "pwsh".to_string()
+    } else {
+        env::var("SHELL")?
+    };
 
     rerun_command_impl(cmd, &shell)
 }

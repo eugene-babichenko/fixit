@@ -8,6 +8,12 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.8.1
+
+### Fixed
+
+- Reliably detect running inside Powershell.
+
 ## v0.8.0
 
 ### Added

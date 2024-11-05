@@ -28,6 +28,7 @@ impl Cmd {
                 print!(
                     r#"
 function {name}() {{
+    export FIXIT_POWERSHELL='false'
     previous_cmd="$(fc -ln -1)"
     export FIXIT_FNS="$(
         declare -F | cut -d' ' -f3
@@ -45,6 +46,7 @@ function {name}() {{
                 print!(
                     r#"
 function {name} -d "Fix your previous command"
+    export FIXIT_POWERSHELL='false'
     set -l previous_cmd "$history[1]"
     set -lx FIXIT_FNS (
         functions | cut -d' ' -f1
@@ -62,6 +64,7 @@ end
             Shell::Zsh => print!(
                 r#"
 function {name}() {{
+    export FIXIT_POWERSHELL='false'
     previous_cmd="$(fc -ln -1)"
     export FIXIT_FNS="$(
         print -l ${{(ok)functions}}
@@ -77,6 +80,7 @@ function {name}() {{
             Shell::Powershell => print!(
                 r#"
 function {name} {{
+    $env:FIXIT_POWERSHELL = 'true'
     $previousCmd = (Get-History -Count 1).CommandLine
     $env:FIXIT_FNS = (Get-Command).Name
     # trimming is required to make Add-History work

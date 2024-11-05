@@ -19,6 +19,9 @@ pub struct Config {
     /// The number of lines to scan from the scrollback buffer.
     #[arg(env = "FIXIT_QUICK_SEARCH_DEPTH", default_value_t = 1000)]
     depth: usize,
+    /// Reliably check if running inside a Powershell session
+    #[arg(env = "FIXIT_POWERSHELL")]
+    powershell: bool,
 }
 
 #[derive(Debug, Error)]
@@ -50,7 +53,7 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
         }
     }
 
-    rerun_command::rerun_command(cmd)
+    rerun_command::rerun_command(cmd, config.powershell)
 }
 
 pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String, Error> {
