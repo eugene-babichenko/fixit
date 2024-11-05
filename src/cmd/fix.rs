@@ -2,7 +2,6 @@ use std::{io, time::SystemTime};
 
 use clap::Parser;
 use dialoguer::{console::Term, theme::ColorfulTheme, Select};
-use log::log_enabled;
 use thiserror::Error;
 
 use crate::{
@@ -46,21 +45,17 @@ impl Cmd {
             return Ok(());
         };
 
-        if log_enabled!(log::Level::Debug) {
-            let elapsed = SystemTime::now().duration_since(time).unwrap();
-            log::debug!("command output in {} milliseconds", elapsed.as_millis());
-        }
+        let elapsed = SystemTime::now().duration_since(time).unwrap();
+        log::debug!("command output in {} milliseconds", elapsed.as_millis());
 
         let fixes = find_fixes(&self.cmd, output, RULES);
 
-        if log_enabled!(log::Level::Debug) {
-            let elapsed = SystemTime::now().duration_since(time).unwrap();
-            log::debug!(
-                "{} fixes found in {} milliseconds",
-                fixes.len(),
-                elapsed.as_millis()
-            );
-        }
+        let elapsed = SystemTime::now().duration_since(time).unwrap();
+        log::debug!(
+            "{} fixes found in {} milliseconds",
+            fixes.len(),
+            elapsed.as_millis()
+        );
 
         if fixes.is_empty() {
             eprintln!("No fixes were found!");
@@ -85,17 +80,15 @@ impl Cmd {
             .items(&fixes)
             .interact_opt();
 
-        // Do not throw an error when Ctrl-C is pressed.
-        if let Err(dialoguer::Error::IO(e)) = &selection_result {
-            if e.kind() == io::ErrorKind::Interrupted {
-                return Ok(());
+        match selection_result {
+            Ok(Some(selection)) => {
+                print!("{}", fixes[selection]);
+                Ok(())
             }
+            Ok(None) => Ok(()),
+            // Do not throw an error when Ctrl-C is pressed.
+            Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => Ok(()),
+            Err(e) => Err(Error::Select(e)),
         }
-
-        if let Some(selection) = selection_result? {
-            print!("{}", fixes[selection]);
-        }
-
-        Ok(())
     }
 }
