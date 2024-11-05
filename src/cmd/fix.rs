@@ -36,6 +36,11 @@ impl Cmd {
     pub fn run(self) -> Result<(), Error> {
         let time = SystemTime::now();
 
+        if self.cmd.is_empty() {
+            eprintln!("No previous commands.");
+            return Ok(());
+        }
+
         let Some(output) = get_text::get_text(self.get_text, &self.cmd)? else {
             eprintln!("The command ran successfully: nothing to fix.");
             return Ok(());

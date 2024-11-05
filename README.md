@@ -71,6 +71,10 @@ Add the corresponding line to your shell configuration file
 
     fixit init fish | source
 
+**Powershell**:
+
+    Invoke-Expression (fixit init powershell | Out-String)
+
 ## Teminal emulator/multiplexer setup
 
 ### kitty
@@ -175,7 +179,7 @@ Environment variables:
   - [x] bash
   - [x] zsh
   - [x] fish
-  - [ ] Powershell
+  - [x] Powershell
 - Automated testing
   - [ ] Integration tests supported shells (headless)
   - [ ] Integration tests for supported emulators/multiplexers.

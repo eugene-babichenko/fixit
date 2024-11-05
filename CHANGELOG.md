@@ -8,6 +8,14 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- PowerShell support.
+
+### Fixed
+
+- Panic when fix is called with empty history.
+
 ## v0.7.0
 
 ### Added
