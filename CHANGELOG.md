@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.8.0
+
 ### Added
 
 - PowerShell support.
