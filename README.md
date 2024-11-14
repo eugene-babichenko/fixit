@@ -22,7 +22,8 @@ Then one of two things happen:
 
 - The previous command is re-run to get its output.
 - The output of the previous command is retrieved via your terminal
-  emulator/multiplexer API (available on tmux, kitty and WezTerm).
+  emulator/multiplexer API (see [the list](#software-with-quick-fixes-available)
+  of supported software).
 
 Once `fixit` has the command output, it runs the command and its output through
 a number of [rules](#available-rules) to determine appropriate fixes. After you
@@ -93,6 +94,20 @@ stability you are advised to set up [shell integration][kitty-sh-i].
 ### Other software
 
 You do not need any additional setup.
+
+### Software with quick fixes available
+
+Terminal multiplexers:
+
+- tmux
+- Zellij
+
+Teminal emulators:
+
+- iTerm
+- kitty
+- Wezterm
+- Terminal.app
 
 ## Usage
 
@@ -170,6 +185,7 @@ Environment variables:
     - [x] WezTerm
     - [x] iTerm2
     - [x] Zellij
+    - [x] Apple Terminal.app
   - [ ] Get terminal logs by running an arbitrary command.
   - [ ] Get the output of the previous command by running an arbitrary command.
   - [ ] Wrap around shell to read its logs (a la The Fuck instant mode).

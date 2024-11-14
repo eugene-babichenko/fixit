@@ -6,6 +6,7 @@ use thiserror::Error;
 
 mod iterm;
 mod kitty;
+mod macos_terminal;
 mod rerun_command;
 mod tmux;
 mod wezterm;
@@ -43,14 +44,19 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
             zellij::get_text,
             wezterm::get_text,
             iterm::get_text,
+            macos_terminal::get_text,
         ];
 
         for get_text in get_text {
             if let Some(command_output) = get_text(cmd, config.depth) {
-                log::debug!("got fast output: {command_output}");
+                log::debug!("got fast output");
                 return Ok(Some(vec![command_output]));
             }
         }
+
+        log::debug!("quick search failed");
+    } else {
+        log::debug!("quick search is disabled");
     }
 
     rerun_command::rerun_command(cmd, config.powershell)
