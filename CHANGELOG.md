@@ -12,6 +12,10 @@ and this project adheres to
 
 - Support for quick fixes in Apple Terminal.
 
+### Fixed
+
+- Getting text in iTerm with shell integration enabled.
+
 ## v0.8.1
 
 ### Fixed

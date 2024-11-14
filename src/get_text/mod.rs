@@ -88,7 +88,8 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
     // we get the functionality to get the output of the last command a-la kitty
     // someday.
 
-    let stdout: Vec<_> = stdout.lines().collect();
+    let stdout: Vec<_> = stdout.lines().map(|s| s.trim_end()).collect();
+    let cmd = cmd.trim_end();
 
     let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
 
