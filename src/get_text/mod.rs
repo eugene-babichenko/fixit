@@ -15,13 +15,13 @@ mod zellij;
 #[derive(Parser)]
 pub struct Config {
     /// Enable searching via WezTerm API
-    #[arg(env = "FIXIT_QUICK_ENABLE", default_value_t = true)]
+    #[arg(long, env = "FIXIT_QUICK_ENABLE", default_value_t = true)]
     quick: bool,
     /// The number of lines to scan from the scrollback buffer.
-    #[arg(env = "FIXIT_QUICK_SEARCH_DEPTH", default_value_t = 1000)]
+    #[arg(long, env = "FIXIT_QUICK_SEARCH_DEPTH", default_value_t = 1000)]
     depth: usize,
     /// Reliably check if running inside a Powershell session
-    #[arg(env = "FIXIT_POWERSHELL")]
+    #[arg(long, env = "FIXIT_POWERSHELL")]
     powershell: bool,
 }
 

@@ -82,4 +82,4 @@ jobs:
         run: |
           gh release download --repo xd009642/tarpaulin --pattern 'cargo-tarpaulin-x86_64-unknown-linux-musl.tar.gz'
           tar -xvzf cargo-tarpaulin-x86_64-unknown-linux-musl.tar.gz
-          ./cargo-tarpaulin --skip-clean --coveralls ${{ secrets.COVERALLS_TOKEN }}
+          ./cargo-tarpaulin --follow-exec --skip-clean --coveralls ${{ secrets.COVERALLS_TOKEN }}
