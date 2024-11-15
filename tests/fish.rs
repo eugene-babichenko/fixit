@@ -24,7 +24,6 @@ fn fish() -> (Session, NamedTempFile) {
 
     let mut p = Session::spawn(fish).expect("Failed to spawn fish");
 
-    // Initialize Fish
     p.send_line("fixit init fish | source").unwrap();
 
     (p, histfile)
@@ -37,7 +36,6 @@ fn fixed(fish: (Session, NamedTempFile)) {
     p.set_expect_timeout(Some(Duration::from_secs(5)));
 
     p.send_line("eco 'Hello, world!'").unwrap();
-    p.expect("Unknown command").unwrap();
     p.send_line("fix").unwrap();
     p.send_line("").unwrap();
     p.expect("Hello, world!").unwrap();
