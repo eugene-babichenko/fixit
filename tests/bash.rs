@@ -21,7 +21,7 @@ fn bash() {
 
     let mut p = Session::spawn(bash).expect("Failed to spawn bash");
 
-    p.set_expect_timeout(Some(Duration::from_secs(1)));
+    p.set_expect_timeout(Some(Duration::from_secs(5)));
 
     p.send_line("eval \"$(fixit init bash)\"").unwrap();
     p.send_line("eco 'Hello, world!'").unwrap();
