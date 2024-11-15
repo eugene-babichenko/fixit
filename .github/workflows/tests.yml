@@ -51,18 +51,16 @@ jobs:
         run: sudo apt-get install -y zsh fish
 
       - name: Install coverage tools
-        run: |
-          rustup component add llvm-tools
-          curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+        run: rustup component add llvm-tools
 
       - name: Run tests
-        run: cargo nextest run
+        run: cargo test
 
       - name: Generate coverage report
         run: |
           toolchain="$(grep '^default_toolchain' ~/.rustup/settings.toml | cut -d'"' -f2)"
           PATH="$HOME/.rustup/toolchains/$toolchain/lib/rustlib/${toolchain#*-}/bin:$PATH"
-          BINARIES="$(cargo nextest list --list-type binaries-only --message-format json | jq -r '.["rust-binaries"] | .[] | "--object \(.["binary-path"])"'  | tr '\n' ' ')"
+          BINARIES="$(cargo test --no-run --message-format=json | jq -rj 'select(.profile.test == true) | .filenames[] | "--object " + . + " "')"
           ARGS="-instr-profile fixit.profdata $BINARIES --object $PWD/target/debug/fixit"
           llvm-profdata merge -sparse default_*.profraw -o fixit.profdata
           llvm-cov report --use-color --ignore-filename-regex='/.cargo/registry' $ARGS
