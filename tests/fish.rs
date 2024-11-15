@@ -12,12 +12,15 @@ fn fish() -> (Session, NamedTempFile) {
     fish.args(["--no-config", "--interactive", "--private"])
         .env(
             "PATH",
-            &format!("./target/debug/:{}", env::var("PATH").unwrap()),
+            &format!(
+                "{}/target/debug/:{}",
+                env::current_dir().unwrap().display(),
+                env::var("PATH").unwrap()
+            ),
         )
         .env("FIXIT_QUICK_ENABLE", "false")
         .env("fish_history", histfile.path())
-        .env("SHELL", "fish")
-        .env("fish_command_not_found_path", "");
+        .env("SHELL", "fish");
 
     let mut p = Session::spawn(fish).expect("Failed to spawn fish");
 

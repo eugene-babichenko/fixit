@@ -13,7 +13,11 @@ fn bash() -> (Session, NamedTempFile) {
     bash.args(["--norc", "-i", "-o", "history"])
         .env(
             "PATH",
-            &format!("./target/debug/:{}", env::var("PATH").unwrap()),
+            &format!(
+                "{}/target/debug/:{}",
+                env::current_dir().unwrap().display(),
+                env::var("PATH").unwrap()
+            ),
         )
         .env("FIXIT_QUICK_ENABLE", "false")
         .env("HISTFILE", histfile.path())
