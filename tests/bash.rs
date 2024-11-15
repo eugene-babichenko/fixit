@@ -1,3 +1,4 @@
+use std::io::Read;
 use std::time::Duration;
 use std::{env, process::Command};
 
@@ -29,4 +30,8 @@ fn bash() {
     p.send_line("").unwrap();
     p.expect("Hello, world!").unwrap();
     p.send_line("exit").unwrap();
+
+    let mut buf = String::new();
+    p.read_to_string(&mut buf).unwrap();
+    println!("{buf}");
 }
