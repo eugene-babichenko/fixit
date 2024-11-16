@@ -58,8 +58,7 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          toolchain="$(grep '^default_toolchain' ~/.rustup/settings.toml | cut -d'"' -f2)"
-          PATH="$HOME/.rustup/toolchains/$toolchain/lib/rustlib/${toolchain#*-}/bin:$PATH"
+          PATH="$(rustc --print=target-libdir)/../bin:$PATH"
           BINARIES="$(cargo test --no-run --message-format=json | jq -rj 'select(.profile.test == true) | .filenames[] | "--object " + . + " "')"
           ARGS="-instr-profile fixit.profdata $BINARIES --object $PWD/target/debug/fixit"
           llvm-profdata merge -sparse default_*.profraw -o fixit.profdata
