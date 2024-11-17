@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: sudo apt-get install -y zsh fish
+        run: sudo apt-get install -y zsh fish tmux
 
       - name: Install coverage tools
         run: rustup component add llvm-tools

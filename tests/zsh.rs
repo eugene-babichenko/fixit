@@ -9,7 +9,7 @@ fn zsh() -> (Session, NamedTempFile) {
     let histfile = NamedTempFile::new().unwrap();
 
     let mut zsh = Command::new("zsh");
-    zsh.args(["-f", "-i"]) // -f means no RC files, -i for interactive
+    zsh.args(["-f", "-i"])
         .env(
             "PATH",
             &format!(
@@ -21,15 +21,9 @@ fn zsh() -> (Session, NamedTempFile) {
         .env("FIXIT_QUICK_ENABLE", "false")
         .env("HISTFILE", histfile.path())
         .env("SHELL", "zsh");
-    // ZSH specific history settings
-    // .env("SAVEHIST", "1000")
-    // .env("HISTSIZE", "1000");
 
     let mut p = Session::spawn(zsh).expect("Failed to spawn zsh");
 
-    // Initialize ZSH history
-    // p.send_line("setopt APPEND_HISTORY").unwrap();
-    // p.send_line("setopt INC_APPEND_HISTORY").unwrap();
     p.send_line("eval \"$(fixit init zsh)\"").unwrap();
 
     (p, histfile)

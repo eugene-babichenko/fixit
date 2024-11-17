@@ -75,6 +75,10 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
         .map_err(|e| log::debug!("failed to stringify the command output: {e}"))
         .ok()?;
 
+    log::debug!("stdout {}", stdout);
+
+    let cmd = cmd.trim();
+
     if !stdout.contains(cmd) {
         log::debug!("command not found in stdout");
         return None;
@@ -89,7 +93,6 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
     // someday.
 
     let stdout: Vec<_> = stdout.lines().map(|s| s.trim_end()).collect();
-    let cmd = cmd.trim_end();
 
     let fish_error_highlight_regex = Regex::new(r"\^~+\^").unwrap();
 

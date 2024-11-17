@@ -14,6 +14,10 @@ and this project adheres to
 
 ### Fixed
 
+- Quick search not working properly with bash.
+
+### Fixed
+
 - Getting text in iTerm with shell integration enabled.
 
 ## v0.8.1
