@@ -53,8 +53,11 @@ jobs:
       - name: Install coverage tools
         run: rustup component add llvm-tools
 
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Run tests
-        run: cargo test
+        run: cargo test -- --nocapture
 
       - name: Generate coverage report
         run: |
