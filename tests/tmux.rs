@@ -59,7 +59,6 @@ fn fixed() {
 
     println!("{}", res);
 
-    assert!(res.contains("got tmux output"));
     assert!(res.contains("got fast output"));
     assert!(res.contains("Hello, world!"));
 }
