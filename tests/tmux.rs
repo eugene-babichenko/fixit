@@ -28,7 +28,7 @@ fn fixed() {
 
     p.send_line("export SHELL=bash").unwrap();
     p.send_line(format!(
-        "export PATH='{}/target/debug/:$PATH'",
+        "export PATH=\"{}/target/debug/:$PATH\"",
         env::current_dir().unwrap().display()
     ))
     .unwrap();
