@@ -17,7 +17,8 @@ fn fixed() {
                 env::var("PATH").unwrap()
             ),
         )
-        .env("HISTFILE", histfile.path());
+        .env("HISTFILE", histfile.path())
+        .env("TERM", "xterm");
 
     let mut p = Session::spawn(tmux).expect("Failed to spawn tmux");
 
