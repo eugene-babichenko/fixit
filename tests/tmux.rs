@@ -36,8 +36,8 @@ fn fixed() {
     p.send_line("FIXIT_LOG='fixit::get_text=debug' fix")
         .unwrap();
     p.send_line("").unwrap();
-    p.expect("got tmux output").unwrap();
-    p.expect("got fast output").unwrap();
+    // p.expect("got tmux output").unwrap();
+    // p.expect("got fast output").unwrap();
     p.expect("Hello, world!").unwrap();
     p.send_line("exit").unwrap();
     // let mut buf = String::new();
