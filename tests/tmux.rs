@@ -8,25 +8,17 @@ fn fixed() {
     let histfile = NamedTempFile::new().unwrap();
 
     let mut tmux = Command::new("tmux");
-    tmux.args([
-        "new-session",
-        "-T",
-        "xterm-256color",
-        "bash",
-        "--norc",
-        "-i",
-        "-o",
-        "history",
-    ])
-    .env(
-        "PATH",
-        &format!(
-            "{}/target/debug/:{}",
-            env::current_dir().unwrap().display(),
-            env::var("PATH").unwrap()
-        ),
-    )
-    .env("HISTFILE", histfile.path());
+    tmux.args(["new-session", "bash", "--norc", "-i", "-o", "history"])
+        .env(
+            "PATH",
+            &format!(
+                "{}/target/debug/:{}",
+                env::current_dir().unwrap().display(),
+                env::var("PATH").unwrap()
+            ),
+        )
+        .env("HISTFILE", histfile.path())
+        .env("TERM", "xterm-256color");
 
     let mut p = Session::spawn(tmux).expect("Failed to spawn tmux");
 
