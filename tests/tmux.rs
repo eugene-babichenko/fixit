@@ -27,6 +27,11 @@ fn fixed() {
     p.set_expect_timeout(Some(Duration::from_secs(5)));
 
     p.send_line("export SHELL=bash").unwrap();
+    p.send_line(format!(
+        "export PATH='{}/target/debug/:$PATH'",
+        env::current_dir().unwrap().display()
+    ))
+    .unwrap();
     p.send_line("eco 'Hello, world!'").unwrap();
     p.send_line("FIXIT_LOG='fixit::get_text=debug' fix")
         .unwrap();
