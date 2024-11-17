@@ -15,10 +15,9 @@ and this project adheres to
 ### Fixed
 
 - Quick search not working properly with bash.
-
-### Fixed
-
 - Getting text in iTerm with shell integration enabled.
+- Improper processing of quick search when bash outputs errors in the format of
+  `bash: line 1: error text goes here`.
 
 ## v0.8.1
 
