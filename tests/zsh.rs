@@ -1,11 +1,10 @@
 use std::{env, process::Command, time::Duration};
 
 use expectrl::Session;
-use rstest::{fixture, rstest};
 use tempfile::NamedTempFile;
 
-#[fixture]
-fn zsh() -> (Session, NamedTempFile) {
+#[test]
+fn fixed() {
     let histfile = NamedTempFile::new().unwrap();
 
     let mut zsh = Command::new("zsh");
@@ -25,14 +24,6 @@ fn zsh() -> (Session, NamedTempFile) {
     let mut p = Session::spawn(zsh).expect("Failed to spawn zsh");
 
     p.send_line("eval \"$(fixit init zsh)\"").unwrap();
-
-    (p, histfile)
-}
-
-#[rstest]
-fn fixed(zsh: (Session, NamedTempFile)) {
-    let (mut p, _histfile) = zsh;
-
     p.set_expect_timeout(Some(Duration::from_secs(5)));
 
     p.send_line("eco 'Hello, world!'").unwrap();
