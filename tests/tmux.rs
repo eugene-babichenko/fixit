@@ -1,46 +1,65 @@
-use std::{env, io::Read, process::Command, time::Duration};
-
-use expectrl::Session;
-use tempfile::NamedTempFile;
+use xshell::cmd;
 
 #[test]
 fn fixed() {
-    let histfile = NamedTempFile::new().unwrap();
+    let sh = xshell::Shell::new().unwrap();
 
-    let mut tmux = Command::new("tmux");
-    tmux.args(["new-session", "bash", "--norc", "-i", "-o", "history"])
-        .env(
-            "PATH",
-            &format!(
-                "{}/target/debug/:{}",
-                env::current_dir().unwrap().display(),
-                env::var("PATH").unwrap()
-            ),
-        )
-        .env("HISTFILE", histfile.path())
-        .env("TERM", "xterm-256color");
-
-    let mut p = Session::spawn(tmux).expect("Failed to spawn tmux");
-
-    p.send_line("eval \"$(fixit init bash)\"").unwrap();
-
-    p.set_expect_timeout(Some(Duration::from_secs(5)));
-
-    p.send_line("export SHELL=bash").unwrap();
-    p.send_line(format!(
-        "export PATH=\"{}/target/debug/:$PATH\"",
-        env::current_dir().unwrap().display()
-    ))
+    cmd!(
+        sh,
+        "tmux new-session -d -s test_session bash --norc -i -o history"
+    )
+    .run()
     .unwrap();
-    p.send_line("eco 'Hello, world!'").unwrap();
-    p.send_line("FIXIT_LOG='fixit::get_text=debug' fix")
+
+    cmd!(sh, "tmux send-keys -t test_session 'export SHELL=bash' C-m")
+        .run()
         .unwrap();
-    p.send_line("").unwrap();
-    // p.expect("got tmux output").unwrap();
-    // p.expect("got fast output").unwrap();
-    p.expect("Hello, world!").unwrap();
-    p.send_line("exit").unwrap();
-    // let mut buf = String::new();
-    // p.read_to_string(&mut buf).unwrap();
-    // println!("{}", buf);
+
+    cmd!(
+        sh,
+        "tmux send-keys -t test_session 'export PATH=\"$PWD/target/debug/:$PATH\"' C-m"
+    )
+    .run()
+    .unwrap();
+
+    cmd!(
+        sh,
+        "tmux send-keys -t test_session 'eval \"$(fixit init bash)\"' C-m"
+    )
+    .run()
+    .unwrap();
+
+    cmd!(
+        sh,
+        "tmux send-keys -t test_session 'eco \"Hello, world!\"' C-m"
+    )
+    .run()
+    .unwrap();
+
+    cmd!(
+        sh,
+        "tmux send-keys -t test_session 'FIXIT_LOG=\"fixit::get_text=debug\" fix' C-m"
+    )
+    .run()
+    .unwrap();
+
+    std::thread::sleep(std::time::Duration::from_millis(1000));
+
+    cmd!(sh, "tmux send-keys -t test_session Enter")
+        .run()
+        .unwrap();
+
+    let res = cmd!(sh, "tmux capture-pane -t test_session -p")
+        .read()
+        .unwrap();
+
+    std::thread::sleep(std::time::Duration::from_millis(1000));
+
+    cmd!(sh, "tmux kill-session -t test_session").run().unwrap();
+
+    println!("{}", res);
+
+    assert!(res.contains("got tmux output"));
+    assert!(res.contains("got fast output"));
+    assert!(res.contains("Hello, world!"));
 }
