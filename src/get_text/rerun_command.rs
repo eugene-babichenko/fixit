@@ -3,17 +3,34 @@ use std::{env, process::Command};
 use crate::get_text::{stdout_to_string, Error};
 
 pub fn rerun_command(cmd: &str, powershell: bool) -> Result<Option<Vec<String>>, Error> {
-    // re-run the command in the current shell
-    let shell = if powershell {
-        "pwsh".to_string()
+    rerun_command_impl(cmd, &get_shell(powershell))
+}
+
+fn get_shell(powershell: bool) -> String {
+    if powershell {
+        return "pwsh".to_string();
+    }
+
+    if let Ok(shell) = env::var("SHELL") {
+        return shell;
+    }
+
+    let shell = if cfg!(target_os = "windows") {
+        "cmd.exe".to_string()
     } else {
-        env::var("SHELL")?
+        "/bin/sh".to_string()
     };
 
-    rerun_command_impl(cmd, &shell)
+    log::warn!(
+        "no $SHELL variable was found, using the default shell: {}",
+        shell
+    );
+
+    shell
 }
 
 fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>, Error> {
+    log::debug!("shell in use: {}", &shell);
     log::debug!("re-running command: {}", &cmd);
     let output = Command::new(shell)
         .arg("-c")
