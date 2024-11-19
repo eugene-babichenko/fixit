@@ -8,22 +8,21 @@
 
 `fixit` is a terminal application that fixes mistakes in your commands inspired
 by [The Fuck][thefuck]. It is also designed to be _fast as fuck_ (more about
-that in the ["Why?" section](#why)).
+that in the [motivation section](MOTIVATION.md)).
 
 See contributing guidelines [here](CONTRIBUTING.md). If you want to help `fixit`
-move forward, see the [roadmap](#roadmap).
+move forward, see the [roadmap](ROADMAP.md).
 
 ![demo](doc/demo.svg)
 
 ## How it works?
 
 When you run the `fix` command, it gets the last command from the shell history.
-Then one of two things happen:
+Then it gets the output of this command in one of the two ways:
 
-- The previous command is re-run to get its output.
-- The output of the previous command is retrieved via your terminal
-  emulator/multiplexer API (see [the list](#software-with-quick-fixes-available)
-  of supported software).
+- Re-running the command.
+- Retrieving the output from the emulator/multiplexer API (see
+  [the list](#software-with-quick-fixes-available) of compatible software).
 
 Once `fixit` has the command output, it runs the command and its output through
 a number of [rules](#available-rules) to determine appropriate fixes. After you
@@ -31,25 +30,25 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
-Any Linux distro that uses `apt` (Ubuntu, Debian, Mint, etc):
+`apt` (Ubuntu, Debian, Mint, etc):
 
     echo "deb [arch=$(dpkg --print-architecture) trusted=yes] https://eugene-babichenko.github.io/fixit/ppa ./" | sudo tee /etc/apt/sources.list.d/fixit.list > /dev/null
     sudo apt update
     sudo apt install fixit
 
-For Arch Linux users fixit is [available][aur] on AUR (build from source):
-
-    yay -S fixit
-
-`x86_64` and `aarch64` pre-built binaries are available as well:
+**Arch Linux**:
 
     yay -S fixit-bin
 
-Using Homebrew/Linuxbrew:
+Or build from source:
+
+    yay -S fixit
+
+**macOS** Homebrew/Linuxbrew:
 
     brew install eugene-babichenko/fixit/fixit
 
-Installing with Cargo (you will need the [Rust toolchain][rust]):
+**Cargo** (any system, you will need the [Rust toolchain][rust]):
 
     cargo install fixit-cli
 
@@ -58,7 +57,7 @@ from [Releases][releases].
 
 ## Shell setup
 
-Add the corresponding line to your shell configuration file
+Add the corresponding line to your shell configuration file.
 
 **bash**:
 
@@ -76,26 +75,23 @@ Add the corresponding line to your shell configuration file
 
     Invoke-Expression (fixit init powershell | Out-String)
 
-## Teminal emulator/multiplexer setup
+## Usage
 
-### kitty
+Having a command that broke? Just type `fix` in your shell.
 
-You can skip this section if you are using tmux inside Kitty. Quick completions
-work out of the box with tmux.
+## A note for `kitty` users
+
+You don't need to do this, if you use a terminal multiplexer inside `kitty`.
 
 This is optional, but without this `fixit` will fall back to just re-running the
 command, which is going to be slower.
 
 To make quick completions work, you need to enable [remote
-control][kitty-remote]. This is required, because this application uses
+control][kitty-remote]. This is recommended, because this application uses
 `kitty @ get-text` to retrieve the command output. For the best performance and
 stability you are advised to set up [shell integration][kitty-sh-i].
 
-### Other software
-
-You do not need any additional setup.
-
-### Software with quick fixes available
+## Software with quick fixes available
 
 Terminal multiplexers:
 
@@ -109,37 +105,26 @@ Teminal emulators:
 - Wezterm
 - Terminal.app
 
-## Usage
-
-Having a command that broke? Just type `fix`.
-
 ## Configuration
 
-### Initialization
+### Alias name
 
-You can change the name of the alias by providing the `--name` argument to the
-`init` command:
+You can change the name of the generated alias by providing the `--name`
+argument to the `init` command:
 
     fixit init --name f fish | source
 
-This will generate the command named `f` instead of `fix`.
+This will generate the alias named `f` instead of `fix`.
 
 ### Fixing
 
 Environment variables:
 
-- `FIXIT_PAGE_SIZE` regulates how many suggestions per page you will see. The
-  default is `5`.
-- `FIXIT_QUICK_ENABLE` - when running inside a supported terminal
-  emulator/multiplexer, try to get the command output with its API instead of
-  re-running the given command. This is generally much faster, so it is
-  recommended that you leave it as is unless you run into any bugs associated
-  with finding fixes. The combination that can be potentially buggy is
-  suppported terminal emulator with unsupported multiplexer when the failed
-  command is not visible on the screen. The default value is `true`. Pass
-  `false` to disable.
-- `FIXIT_QUICK_SEARCH_DEPTH` sets the number of lines to get from the scrollback
-  buffer in addition to what we see on the screen. The default is `1000`.
+| Variable                   | Description                                                                                         | Default Value |
+| -------------------------- | --------------------------------------------------------------------------------------------------- | ------------- |
+| `FIXIT_PAGE_SIZE`          | Controls how many suggestions per page you will see on the screen                                   | 5             |
+| `FIXIT_QUICK_ENABLE`       | Enable quick fixes using terminal emulator/multiplexer API                                          | `true`        |
+| `FIXIT_QUICK_SEARCH_DEPTH` | Sets the number of lines to get from the scrollback buffer in addition to what we see on the screen | 1000          |
 
 ### Logging
 
@@ -172,75 +157,6 @@ Environment variables:
 - `rm_dir` - add `-r` to `rm` when trying to remove a directory.
 - `sudo` - prepend with `sudo` when permission to execute a command was denied.
 
-## Roadmap
-
-- [x] Automatic update check
-- [x] Deal with complex commands (e.g. env var specification included:
-      `FOO=bar command -arg`)
-- Quick suggestions without re-running commands:
-  - Via terminal emulator/multiplexer API
-    - [x] tmux
-    - [x] kitty
-      - [x] Get only the last command output with shell integration.
-    - [x] WezTerm
-    - [x] iTerm2
-    - [x] Zellij
-    - [x] Apple Terminal.app
-  - [ ] Get terminal logs by running an arbitrary command.
-  - [ ] Get the output of the previous command by running an arbitrary command.
-  - [ ] Wrap around shell to read its logs (a la The Fuck instant mode).
-  - [ ] Recognize OSC 133 escape sequences. This will help to determine command
-        output boundaries.
-- Shell support
-  - [x] bash
-  - [x] zsh
-  - [x] fish
-  - [x] Powershell
-- Automated testing
-  - [ ] Integration tests supported shells (headless)
-  - [ ] Integration tests for supported emulators/multiplexers.
-- [ ] Optional removal of a failed command from history.
-- Packaging
-  - [x] Homebrew
-  - [x] AUR
-  - [x] deb
-  - [ ] rpm
-  - [ ] NixOS
-  - anything else
-
-## Why?
-
-While The Fuck is certainly magnificient, it does have a fatal flaw: it is
-written in Python. With all due respect, Python is slow and this does harm the
-user experience in two ways:
-
-- It creates a perceivable and annoying slowdown during the shell startup,
-  because it is written in Python.
-- The fixes themselves can be rather slow.
-
-On top of that, sometimes system-wide Python packages just break. In fact, this
-happened to me while I've been writing this page and trying to do benchmarks.
-
-The intention behind `fixit` is to solve this by the re-write in a natively
-compiled language. Namely, in Rust. This removes the overhead of the Python
-interpreter and opens up the potential to search for fixes utilizing all of the
-CPU cores.
-
-### On "instant mode"
-
-The Fuck has a feature called "instant mode" where it wraps around your shell to
-log output and read it instead of re-running the previous command. While this
-approach is certainly useful and has the benefit of being available on every
-terminal emulator locally, over SSH remotely, and without any additional
-terminal configuration, I am not a big fan of it. Going this way can mess with
-your shell output and creates a mess of nested processes. I am not totally
-against it and would totally love if someone implements it for me, but for this
-application the preferred way is to integrate with the terminal emulator API if
-such option is available. The ones that I'm aware of with appropriate APIs are
-WezTerm, kitty and iTerm2 .This way you do not create an additional layer
-between a shell and a user and the fallback to just re-running a command is very
-straightforward without editing shell configuration files.
-
 [thefuck]: https://github.com/nvbn/thefuck
 [rust]: https://www.rust-lang.org/tools/install
 [env-logger]:
@@ -248,6 +164,4 @@ straightforward without editing shell configuration files.
 [kitty-remote]:
   https://sw.kovidgoyal.net/kitty/conf/#opt-kitty.allow_remote_control
 [kitty-sh-i]: https://sw.kovidgoyal.net/kitty/shell-integration/
-[binstall]: https://github.com/cargo-bins/cargo-binstall
-[aur]: https://aur.archlinux.org/packages/fixit
 [releases]: https://github.com/eugene-babichenko/fixit/releases

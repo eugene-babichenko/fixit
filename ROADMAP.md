@@ -1,0 +1,39 @@
+- [x] Automatic update check
+- [x] Deal with complex commands (e.g. env var specification included:
+      `FOO=bar command -arg`)
+- Quick suggestions without re-running commands:
+  - Via terminal emulator/multiplexer API
+    - [x] tmux
+    - [x] kitty
+      - [x] Get only the last command output with shell integration.
+    - [x] WezTerm
+    - [x] iTerm2
+    - [x] Zellij
+    - [x] Apple Terminal.app
+  - [ ] Recognize OSC 133 escape sequences. This will help to determine command
+        output boundaries.
+- Shell support
+  - [x] bash
+  - [x] zsh
+  - [x] fish
+  - [x] Powershell
+- Automated testing
+  - [ ] Integration tests supported shells (headless)
+    - [x] bash
+    - [x] fish
+    - [x] zsh
+    - [ ] Powershell
+  - [ ] Integration tests for supported emulators/multiplexers.
+    - [x] tmux
+    - [ ] Zellij
+    - [ ] Terminal.app
+    - [ ] Wezterm
+    - [ ] kitty
+- [ ] Optional removal of a failed command from history.
+- Packaging
+  - [x] Homebrew
+  - [x] AUR
+  - [x] deb
+  - [ ] rpm
+  - [ ] NixOS
+  - anything else
