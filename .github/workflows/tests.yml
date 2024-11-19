@@ -56,22 +56,14 @@ jobs:
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Run tests
-        run: cargo test -- --nocapture
-
-      - name: Generate coverage report
-        run: |
-          PATH="$(rustc --print=target-libdir)/../bin:$PATH"
-          BINARIES="$(cargo test --no-run --message-format=json | jq -rj 'select(.profile.test == true) | .filenames[] | "--object " + . + " "')"
-          ARGS="-instr-profile fixit.profdata $BINARIES --object $PWD/target/debug/fixit"
-          llvm-profdata merge -sparse default_*.profraw -o fixit.profdata
-          llvm-cov report --use-color --ignore-filename-regex='/.cargo/registry' $ARGS
-          llvm-cov export -format=lcov $ARGS -sources src/{,**/}*.rs > fixit.lcov
+      - name: Run testd and generate coverage report
+        run: ./scripts/coverage.sh
 
       - name: Upload coverage report
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./target/coverage/fixit.lcov
 
   audit:
     name: Check security advisory database
