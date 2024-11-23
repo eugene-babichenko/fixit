@@ -20,8 +20,8 @@ pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
         .ok()?;
 
     if shell_integration {
-        find_command_output(cmd, output.stdout, depth)
-    } else {
         stdout_to_string(output.stdout).ok()
+    } else {
+        find_command_output(cmd, output.stdout, depth)
     }
 }

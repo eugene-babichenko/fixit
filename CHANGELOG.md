@@ -18,6 +18,7 @@ and this project adheres to
 - Getting text in iTerm with shell integration enabled.
 - Improper processing of quick search when bash outputs errors in the format of
   `bash: line 1: error text goes here`.
+- `kitty` would always fall back to re-running the last command.
 
 ## v0.8.1
 
