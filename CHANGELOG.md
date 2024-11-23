@@ -12,6 +12,10 @@ and this project adheres to
 
 - Support for quick fixes in Apple Terminal.
 
+### Changed
+
+- Simplify internal Powerhell workflow.
+
 ### Fixed
 
 - Quick search not working properly with bash.

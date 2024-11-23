@@ -28,7 +28,6 @@ impl Cmd {
                 print!(
                     r#"
 function {name}() {{
-    export FIXIT_POWERSHELL='false'
     previous_cmd="$(fc -ln -1)"
     export FIXIT_FNS="$(
         declare -F | cut -d' ' -f3
@@ -46,7 +45,6 @@ function {name}() {{
                 print!(
                     r#"
 function {name} -d "Fix your previous command"
-    export FIXIT_POWERSHELL='false'
     set -l previous_cmd "$history[1]"
     set -lx FIXIT_FNS (
         functions | cut -d' ' -f1
@@ -64,7 +62,6 @@ end
             Shell::Zsh => print!(
                 r#"
 function {name}() {{
-    export FIXIT_POWERSHELL='false'
     previous_cmd="$(fc -ln -1)"
     export FIXIT_FNS="$(
         print -l ${{(ok)functions}}
@@ -77,14 +74,17 @@ function {name}() {{
     fi
 }}"#
             ),
+            // TODO design a workflow for using this powershell contraption
+            // $PSDefaultParameterValues['Out-Default:OutVariable'] = 'env:FIXIT_PREVIOUS_CMD_OUTPUT'
+            // this would allow us to do quick search with powershell regardless of having a compatible
+            // emulator or multiplexer
             Shell::Powershell => print!(
                 r#"
 function {name} {{
-    $env:FIXIT_POWERSHELL = 'true'
     $previousCmd = (Get-History -Count 1).CommandLine
     $env:FIXIT_FNS = (Get-Command).Name
     # trimming is required to make Add-History work
-    $fixedCmd = (fixit fix "$previousCmd" | Out-String).Trim()
+    $fixedCmd = (fixit fix --powershell "$previousCmd" | Out-String).Trim()
     if ( $fixedCmd -ne '' ) {{
         $startTime = Get-Date
         Invoke-Expression $fixedCmd

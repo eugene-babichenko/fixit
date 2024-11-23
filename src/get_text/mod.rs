@@ -21,7 +21,7 @@ pub struct Config {
     #[arg(long, env = "FIXIT_QUICK_SEARCH_DEPTH", default_value_t = 1000)]
     depth: usize,
     /// Reliably check if running inside a Powershell session
-    #[arg(long, env = "FIXIT_POWERSHELL")]
+    #[arg(long, default_value_t = false)]
     powershell: bool,
 }
 
