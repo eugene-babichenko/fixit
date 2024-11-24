@@ -42,7 +42,7 @@ jobs:
     env:
       RUSTFLAGS: -C instrument-coverage
       RUST_BACKTRACE: 1
-      LLVM_PROFILE_FILE: default_%m_%p.profraw
+      LLVM_PROFILE_FILE: default_%m%c.profraw
     steps:
       - name: Checkout
         uses: actions/checkout@v4
