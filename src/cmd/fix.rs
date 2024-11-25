@@ -85,9 +85,15 @@ impl Cmd {
                 print!("{}", fixes[selection]);
                 Ok(())
             }
-            Ok(None) => Ok(()),
+            Ok(None) => {
+                eprintln!("Cancelled.");
+                Ok(())
+            }
             // Do not throw an error when Ctrl-C is pressed.
-            Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => Ok(()),
+            Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => {
+                eprintln!("Cancelled.");
+                Ok(())
+            }
             Err(e) => Err(Error::Select(e)),
         }
     }
