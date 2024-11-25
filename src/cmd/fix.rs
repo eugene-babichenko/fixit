@@ -63,15 +63,8 @@ impl Cmd {
         }
 
         // Set empty handler for Ctrl-C. This will cause `Select` to exit with
-        // an error instead of immediately interrupting this program. This
-        // gives us the possibility to properly show cursor again in a case the
-        // user presses Ctrl-C, which is not done automatically by `dialoguer`.
-        ctrlc::set_handler(|| {
-            Term::stderr()
-                .show_cursor()
-                .expect("failed to show the cursor again");
-        })
-        .unwrap();
+        // an error instead of immediately interrupting this program.
+        ctrlc::set_handler(|| {}).unwrap();
 
         let selection_result = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("↓(j)/↑(k)/enter(space)/[q]uit(esc/ctrl-c)")
@@ -83,18 +76,19 @@ impl Cmd {
         match selection_result {
             Ok(Some(selection)) => {
                 print!("{}", fixes[selection]);
-                Ok(())
+                return Ok(());
             }
-            Ok(None) => {
-                eprintln!("Cancelled.");
-                Ok(())
-            }
+            Ok(None) => {}
             // Do not throw an error when Ctrl-C is pressed.
             Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => {
-                eprintln!("Cancelled.");
-                Ok(())
+                Term::stderr()
+                    .show_cursor()
+                    .expect("failed to show the cursor again");
             }
-            Err(e) => Err(Error::Select(e)),
+            Err(e) => return Err(Error::Select(e)),
         }
+
+        eprintln!("Cancelled.");
+        Ok(())
     }
 }
