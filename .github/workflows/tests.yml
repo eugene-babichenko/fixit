@@ -40,7 +40,7 @@ jobs:
     name: cargo test
     runs-on: ubuntu-latest
     env:
-      RUSTFLAGS: -C instrument-coverage
+      RUSTFLAGS: -C instrument-coverage -C llvm-args=-runtime-counter-relocation
       RUST_BACKTRACE: 1
       LLVM_PROFILE_FILE: default_%m%c.profraw
     steps:
