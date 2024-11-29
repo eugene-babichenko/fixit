@@ -66,6 +66,9 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
             cross: false
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            cross: false
     steps:
       - name: Install cargo-deb
         if: matrix.os == 'ubuntu-latest'
@@ -90,12 +93,21 @@ jobs:
           chmod +x ./cross
           ./cross $BUILD_FLAGS
 
-      - name: Upload binary archive
+      - name: Upload binary archive (*nix)
+        if: matrix.os != 'windows-latest'
         run: |
           cp ./target/${{ matrix.target }}/release/fixit .
           tar -czvf $ARCHIVE_NAME.tar.gz fixit
           cat $ARCHIVE_NAME.tar.gz | shasum -a 256 | cut -d " " -f 1 | tr -d "\n" > $ARCHIVE_NAME.sha256
           gh release upload ${{ github.ref_name }} $ARCHIVE_NAME.{tar.gz,sha256}
+
+      - name: Upload binary archive (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Compress-Archive -Path "./target/${{ matrix.target }}/release/fixit.exe" "$env:ARCHIVE_NAME.zip"
+          (Get-FileHash "fixit.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -NoNewline -Path $env:ARCHIVE_NAME.sha256
+          gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.zip"
+          gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.sha256"
 
       - name: Create and upload deb package
         if: matrix.os == 'ubuntu-latest'
