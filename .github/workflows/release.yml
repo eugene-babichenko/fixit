@@ -106,7 +106,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           Compress-Archive -Path "./target/${{ matrix.target }}/release/fixit.exe" "$env:ARCHIVE_NAME.zip"
-          (Get-FileHash "fixit.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -NoNewline -Path $env:ARCHIVE_NAME.sha256
+          (Get-FileHash "$env:ARCHIVE_NAME.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -NoNewline -Path $env:ARCHIVE_NAME.sha256
           gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.zip"
           gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.sha256"
 
