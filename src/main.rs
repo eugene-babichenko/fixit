@@ -3,6 +3,7 @@
 use std::{error::Error as _, process::exit};
 
 use clap::{Parser, Subcommand};
+use cmd::{fix, init};
 use thiserror::Error;
 
 mod cmd;
@@ -30,6 +31,8 @@ enum Commands {
 enum Error {
     #[error(transparent)]
     Fix(#[from] cmd::fix::Error),
+    #[error(transparent)]
+    Init(#[from] cmd::init::Error),
 }
 
 fn run() -> Result<(), Error> {
@@ -38,11 +41,8 @@ fn run() -> Result<(), Error> {
     let args = Args::parse();
 
     match args.command {
-        Commands::Fix(cmd) => cmd.run().map_err(Into::into),
-        Commands::Init(cmd) => {
-            cmd.run();
-            Ok(())
-        }
+        Commands::Fix(cmd) => fix::run(cmd).map_err(Into::into),
+        Commands::Init(cmd) => init::run(cmd).map_err(Into::into),
     }
 }
 

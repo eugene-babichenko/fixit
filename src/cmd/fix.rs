@@ -29,66 +29,67 @@ pub enum Error {
     Select(#[from] dialoguer::Error),
     #[error(transparent)]
     GetText(#[from] get_text::Error),
+    #[error("failed to set the Ctrl-C handler")]
+    CtrlC(#[from] ctrlc::Error),
+    #[error("failed to show the cursor again")]
+    ShowCursor(#[source] io::Error),
 }
 
-impl Cmd {
-    pub fn run(self) -> Result<(), Error> {
-        let time = SystemTime::now();
+pub fn run(cmd: Cmd) -> Result<(), Error> {
+    // Set empty handler for Ctrl-C. This will cause `Select` to exit with
+    // an error instead of immediately interrupting this program. This is used for proper nice
+    // cancellation.
+    ctrlc::set_handler(|| {})?;
 
-        if self.cmd.is_empty() {
-            eprintln!("No previous commands.");
-            return Ok(());
-        }
+    let time = SystemTime::now();
 
-        let Some(output) = get_text::get_text(self.get_text, &self.cmd)? else {
-            eprintln!("The command ran successfully: nothing to fix.");
-            return Ok(());
-        };
-
-        let elapsed = SystemTime::now().duration_since(time).unwrap();
-        log::debug!("command output in {} milliseconds", elapsed.as_millis());
-
-        let fixes = find_fixes(&self.cmd, output, RULES);
-
-        let elapsed = SystemTime::now().duration_since(time).unwrap();
-        log::debug!(
-            "{} fixes found in {} milliseconds",
-            fixes.len(),
-            elapsed.as_millis()
-        );
-
-        if fixes.is_empty() {
-            eprintln!("No fixes were found!");
-            return Ok(());
-        }
-
-        // Set empty handler for Ctrl-C. This will cause `Select` to exit with
-        // an error instead of immediately interrupting this program.
-        ctrlc::set_handler(|| {}).unwrap();
-
-        let selection_result = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("↓(j)/↑(k)/enter(space)/[q]uit(esc/ctrl-c)")
-            .default(0)
-            .max_length(self.page_size)
-            .items(&fixes)
-            .interact_opt();
-
-        match selection_result {
-            Ok(Some(selection)) => {
-                print!("{}", fixes[selection]);
-                return Ok(());
-            }
-            Ok(None) => {}
-            // Do not throw an error when Ctrl-C is pressed.
-            Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => {
-                Term::stderr()
-                    .show_cursor()
-                    .expect("failed to show the cursor again");
-            }
-            Err(e) => return Err(Error::Select(e)),
-        }
-
-        eprintln!("Cancelled.");
-        Ok(())
+    if cmd.cmd.is_empty() {
+        eprintln!("No previous commands.");
+        return Ok(());
     }
+
+    let Some(output) = get_text::get_text(cmd.get_text, &cmd.cmd)? else {
+        eprintln!("The command ran successfully: nothing to fix.");
+        return Ok(());
+    };
+
+    let elapsed = SystemTime::now().duration_since(time).unwrap();
+    log::debug!("command output in {} milliseconds", elapsed.as_millis());
+
+    let fixes = find_fixes(&cmd.cmd, output, RULES);
+
+    let elapsed = SystemTime::now().duration_since(time).unwrap();
+    log::debug!(
+        "{} fixes found in {} milliseconds",
+        fixes.len(),
+        elapsed.as_millis()
+    );
+
+    if fixes.is_empty() {
+        eprintln!("No fixes were found!");
+        return Ok(());
+    }
+
+    let selection_result = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt("↓(j)/↑(k)/enter(space)/[q]uit(esc/ctrl-c)")
+        .default(0)
+        .max_length(cmd.page_size)
+        .items(&fixes)
+        .interact_opt();
+
+    match selection_result {
+        Ok(Some(selection)) => {
+            print!("{}", fixes[selection]);
+            return Ok(());
+        }
+        Ok(None) => {}
+        // Do not throw an error when Ctrl-C is pressed.
+        Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => {
+            Term::stderr().show_cursor().map_err(Error::ShowCursor)?;
+        }
+        Err(e) => return Err(Error::Select(e)),
+    }
+
+    eprintln!("Cancelled.");
+    Ok(())
 }
