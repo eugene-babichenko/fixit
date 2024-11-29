@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.9.0
+
 ### Added
 
 - Support for quick fixes in Apple Terminal.
