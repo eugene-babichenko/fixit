@@ -83,6 +83,7 @@ jobs:
 
       - name: Build (cargo)
         if: ${{ ! matrix.cross }}
+        shell: bash
         run: cargo $BUILD_FLAGS
 
       - name: Build (cross)
