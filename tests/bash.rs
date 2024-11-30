@@ -27,15 +27,14 @@ fn bash() -> (Session, NamedTempFile) {
 
     p.send_line("eval \"$(fixit init bash)\"").unwrap();
 
+    p.set_expect_timeout(Some(Duration::from_secs(5)));
+
     (p, histfile)
 }
 
 #[rstest]
 fn fixed(bash: (Session, NamedTempFile)) {
     let (mut p, _histfile) = bash;
-
-    p.set_expect_timeout(Some(Duration::from_secs(5)));
-
     p.send_line("eco 'Hello, world!'").unwrap();
     p.expect("command not found").unwrap();
     p.send_line("fix").unwrap();
@@ -47,9 +46,7 @@ fn fixed(bash: (Session, NamedTempFile)) {
 #[rstest]
 fn nothing_to_fix(bash: (Session, NamedTempFile)) {
     let (mut p, _histfile) = bash;
-
-    p.set_expect_timeout(Some(Duration::from_secs(5)));
-
+    p.send_line("echo 'Hello, world!'").unwrap();
     p.send_line("fix").unwrap();
     p.send_line("").unwrap();
     p.expect("nothing to fix").unwrap();
@@ -58,9 +55,6 @@ fn nothing_to_fix(bash: (Session, NamedTempFile)) {
 #[rstest]
 fn quit(bash: (Session, NamedTempFile)) {
     let (mut p, _histfile) = bash;
-
-    p.set_expect_timeout(Some(Duration::from_secs(5)));
-
     p.send_line("eco 'Hello, world!'").unwrap();
     p.expect("command not found").unwrap();
     p.send_line("fix").unwrap();
