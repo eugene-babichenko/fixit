@@ -42,6 +42,7 @@ macro_rules! define_rules {
 // Please keep these in the alphanumeric order.
 define_rules!(
     brew_update_upgrade,
+    cargo_clippy_args,
     cargo_install_cwd,
     cargo_wrong_command,
     command_not_found,

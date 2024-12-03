@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+## Added
+
+- `cargo_clippy_args`: a rule for `cargo clippy` arguments that must be
+  separated by `--`.
+
 ## v0.9.0
 
 ### Added

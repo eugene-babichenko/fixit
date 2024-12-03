@@ -141,6 +141,8 @@ Environment variables:
 
 - `brew_update_upgrade` - replace `brew update` with `brew upgrade` when trying
   to update a Homebrew package.
+- `cargo_clippy_args`: a rule for `cargo clippy` arguments that must be
+  separated by `--`.
 - `cargo_install_cwd` - fix `cargo install` without arguments (it requires
   `--path`).
 - `cargo_wrong_command` - fix misspelled cargo commands.
