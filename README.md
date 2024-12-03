@@ -126,16 +126,13 @@ Environment variables:
 | `FIXIT_QUICK_ENABLE`       | Enable quick fixes using terminal emulator/multiplexer API                                          | `true`        |
 | `FIXIT_QUICK_SEARCH_DEPTH` | Sets the number of lines to get from the scrollback buffer in addition to what we see on the screen | 1000          |
 
+This configuration is applied immediately, meaning you do not need to
+re-initialize.
+
 ### Logging
 
-Environment variables:
-
-- `FIXIT_LOG` controls logging. The default log level is `error`. For
-  development purposes you generally need to enable the `debug` level
-  (`FIXIT_LOG=debug`). The logger is pretty flexible and you can learn more from
-  the [`env_logger` documentation page][env-logger].
-- `FIXIT_LOG_STYLE` controls logger styling. Refer to `env_logger` docs for this
-  as well.
+Logging is implemented via `env_logger`. Please refer to its
+[documentation][env-logger] to see how to configure the logs.
 
 ## Available rules
 

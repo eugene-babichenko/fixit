@@ -8,10 +8,14 @@ and this project adheres to
 
 ## Unreleased
 
-## Added
+### Added
 
 - `cargo_clippy_args`: a rule for `cargo clippy` arguments that must be
   separated by `--`.
+
+### Changed
+
+- Logging is now controlled with `RUST_LOG` and `RUST_LOG_STYLE`.
 
 ## v0.9.0
 

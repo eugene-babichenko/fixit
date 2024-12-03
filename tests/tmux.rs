@@ -38,7 +38,7 @@ fn fixed() {
 
     cmd!(
         sh,
-        "tmux send-keys -t test_session 'FIXIT_LOG=\"fixit::get_text=debug\" fix' C-m"
+        "tmux send-keys -t test_session 'RUST_LOG=\"fixit::get_text=debug\" fix' C-m"
     )
     .run()
     .unwrap();

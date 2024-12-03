@@ -36,7 +36,7 @@ enum Error {
 }
 
 fn run() -> Result<(), Error> {
-    setup_logger();
+    env_logger::init();
 
     let args = Args::parse();
 
@@ -44,15 +44,6 @@ fn run() -> Result<(), Error> {
         Commands::Fix(cmd) => fix::run(cmd).map_err(Into::into),
         Commands::Init(cmd) => init::run(cmd).map_err(Into::into),
     }
-}
-
-fn setup_logger() {
-    use env_logger::{Builder, Env};
-
-    let env = Env::new()
-        .filter("FIXIT_LOG")
-        .write_style("FIXIT_LOG_STYLE");
-    Builder::from_env(env).init();
 }
 
 fn main() {
