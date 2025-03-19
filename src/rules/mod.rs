@@ -1,6 +1,30 @@
+use rayon::{iter::Either, prelude::*};
 use strsim::normalized_damerau_levenshtein;
 
 use crate::shlex::shlex;
+
+/// Result of rule execution as a parallel iterator.
+type RuleResultParIter = Either<
+    <Option<Vec<String>> as IntoParallelIterator>::Iter,
+    <Vec<Vec<String>> as IntoParallelIterator>::Iter,
+>;
+
+/// Convert the result of a rule into a parallel iterator.
+trait RuleResult {
+    fn into_rule_result_par_iter(self) -> RuleResultParIter;
+}
+
+impl RuleResult for Option<Vec<String>> {
+    fn into_rule_result_par_iter(self) -> RuleResultParIter {
+        Either::Left(self.into_par_iter())
+    }
+}
+
+impl RuleResult for Vec<Vec<String>> {
+    fn into_rule_result_par_iter(self) -> RuleResultParIter {
+        Either::Right(self.into_par_iter())
+    }
+}
 
 /// Process command and its results to return a possible correct command. The
 /// result doesn't necesserily have to be a perfect one, it is _just a
@@ -16,12 +40,12 @@ use crate::shlex::shlex;
 ///
 /// An iterator of possible substitutions as tokenized commands. Empty list
 /// means no possible substitutions were found by this fixer.
-pub type Rule = fn(cmd: Vec<String>, error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send>;
+pub type Rule = fn(cmd: Vec<String>, error: &str) -> RuleResultParIter;
 
 macro_rules! wrap_rule {
     ($name:ident) => {
-        |cmd: Vec<String>, error: &str| -> Box<dyn Iterator<Item = Vec<String>> + Send> {
-            Box::new($name::$name(cmd, error).into_iter())
+        |cmd: Vec<String>, error: &str| -> RuleResultParIter {
+            $name::$name(cmd, error).into_rule_result_par_iter()
         }
     };
 }
@@ -63,10 +87,10 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
     let cmd_split = shlex(cmd);
 
     let mut fixes: Vec<_> = rules
-        .iter()
+        .par_iter()
         .flat_map(|fixer| {
             output
-                .iter()
+                .par_iter()
                 .flat_map(|error| fixer(cmd_split.clone(), &error.to_lowercase()))
         })
         .map(|fixed_cmd| {
@@ -88,8 +112,8 @@ mod tests {
 
     #[test]
     fn duplicate() {
-        fn r(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
-            Box::new(Some(vec!["git".to_string()]).into_iter())
+        fn r(_cmd: Vec<String>, _error: &str) -> RuleResultParIter {
+            Some(vec!["git".to_string()]).into_rule_result_par_iter()
         }
         let rules: &[Rule] = &[r, r];
         assert_eq!(vec!["git"], find_fixes("", vec!["".to_string()], rules));
@@ -97,11 +121,11 @@ mod tests {
 
     #[test]
     fn sorting() {
-        fn r1(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
-            Box::new(Some(vec!["git".to_string()]).into_iter())
+        fn r1(_cmd: Vec<String>, _error: &str) -> RuleResultParIter {
+            Some(vec!["git".to_string()]).into_rule_result_par_iter()
         }
-        fn r2(_cmd: Vec<String>, _error: &str) -> Box<dyn Iterator<Item = Vec<String>> + Send> {
-            Box::new(Some(vec!["qwerty".to_string()]).into_iter())
+        fn r2(_cmd: Vec<String>, _error: &str) -> RuleResultParIter {
+            Some(vec!["qwerty".to_string()]).into_rule_result_par_iter()
         }
         let rules: &[Rule] = &[r2, r1];
         assert_eq!(
