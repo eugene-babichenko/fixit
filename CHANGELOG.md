@@ -13,6 +13,8 @@ and this project adheres to
 - `cargo_clippy_args`: a rule for `cargo clippy` arguments that must be
   separated by `--`.
 - Parallel search for fixes via `rayon`.
+- rules: added `uv_unexpected_argument` for fixing errors in the Python `uv`
+  package manager.
 
 ### Changed
 

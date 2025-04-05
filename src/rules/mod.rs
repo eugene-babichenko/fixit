@@ -80,6 +80,7 @@ define_rules!(
     mkdir_missing_parent,
     rm_dir,
     sudo,
+    uv_unexpected_argument,
 );
 
 pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String> {

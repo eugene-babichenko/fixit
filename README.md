@@ -155,6 +155,8 @@ Logging is implemented via `env_logger`. Please refer to its
   directories.
 - `rm_dir` - add `-r` to `rm` when trying to remove a directory.
 - `sudo` - prepend with `sudo` when permission to execute a command was denied.
+- `uv_unexpected_argument` - fix typos in arguments for the `uv` Python package
+  manager.
 
 [thefuck]: https://github.com/nvbn/thefuck
 [rust]: https://www.rust-lang.org/tools/install
