@@ -15,6 +15,7 @@ and this project adheres to
 - Parallel search for fixes via `rayon`.
 - rules: added `uv_unexpected_argument` for fixing errors in the Python `uv`
   package manager.
+- rules: support Ubuntu error messages in `command_not_found`.
 
 ### Changed
 

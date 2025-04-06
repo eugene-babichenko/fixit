@@ -54,8 +54,15 @@ fn detect_command(cmd: &[String], error: &str) -> Option<usize> {
     let regex_zsh = Regex::new(r"zsh:(?:\d+:)? command not found: ([^\s]+)").unwrap();
     let regex_fish = Regex::new(r"fish: unknown command: ([^\s]+)").unwrap();
     let regex_powershell = Regex::new(r"the term '([^']+)' is not recognized").unwrap();
+    let regex_ubuntu = Regex::new(r"command '([^']+)' not found").unwrap();
 
-    let regex_list = [regex_bash, regex_zsh, regex_fish, regex_powershell];
+    let regex_list = [
+        regex_bash,
+        regex_zsh,
+        regex_fish,
+        regex_powershell,
+        regex_ubuntu,
+    ];
     let wrong_cmd = regex_list
         .iter()
         .find_map(|regex| regex.captures(error)?.get(1))?;
@@ -85,6 +92,7 @@ mod test {
     #[case("zsh: command not found: gti")]
     #[case("fish: unknown command: gti")]
     #[case("gti: the term 'gti' is not recognized as a name of a cmdlet, function, script file, or executable program.")]
+    #[case("command 'gti' not found")]
     fn detect_command_test(#[case] error: &str) {
         let cmd = shlex(TEST_CMD);
         assert_eq!(Some(TEST_CMD_IDX), detect_command(&cmd, error));
