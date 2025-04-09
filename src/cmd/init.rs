@@ -1,7 +1,7 @@
 use std::io::stdout;
 
+use askama::Template;
 use clap::{Parser, Subcommand};
-use rinja::Template;
 use thiserror::Error;
 
 #[derive(Parser)]
@@ -51,7 +51,7 @@ struct PowershellTemplate {
 }
 
 fn render_template<T: Template>(t: T) -> Result<(), Error> {
-    t.write_into(&mut stdout()).map_err(Error)
+    Template::write_into(&t, &mut stdout()).map_err(Error)
 }
 
 pub fn run(cmd: Cmd) -> Result<(), Error> {
