@@ -11,7 +11,7 @@ fn fixed() {
     fish.args(["--no-config", "--interactive", "--private"])
         .env(
             "PATH",
-            &format!(
+            format!(
                 "{}/target/debug/:{}",
                 env::current_dir().unwrap().display(),
                 env::var("PATH").unwrap()

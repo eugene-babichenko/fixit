@@ -13,7 +13,7 @@ fn bash() -> (Session, NamedTempFile) {
     bash.args(["--norc", "-i", "-o", "history"])
         .env(
             "PATH",
-            &format!(
+            format!(
                 "{}/target/debug/:{}",
                 env::current_dir().unwrap().display(),
                 env::var("PATH").unwrap()

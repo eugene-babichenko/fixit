@@ -102,7 +102,7 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
             || stdout[i].ends_with(&[": ", cmd].concat())
             || stdout
                 .get(i + 1)
-                .map_or(false, |s| fish_error_highlight_regex.is_match(s))
+                .is_some_and(|s| fish_error_highlight_regex.is_match(s))
         {
             first_res_line = i;
         } else {
