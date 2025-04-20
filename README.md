@@ -155,6 +155,8 @@ Logging is implemented via `env_logger`. Please refer to its
   directories.
 - `rm_dir` - add `-r` to `rm` when trying to remove a directory.
 - `sudo` - prepend with `sudo` when permission to execute a command was denied.
+- `taskfile_no_task` - suggest task names when trying to run a task from
+  `Taskfile`.
 - `uv_unexpected_argument` - fix typos in arguments for the `uv` Python package
   manager.
 

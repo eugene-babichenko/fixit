@@ -16,6 +16,8 @@ and this project adheres to
 - rules: added `uv_unexpected_argument` for fixing errors in the Python `uv`
   package manager.
 - rules: support Ubuntu error messages in `command_not_found`.
+- `taskfile_no_task`: when you try to run a task from a `Taskfile`, it will
+  suggest valid task names.
 
 ### Changed
 

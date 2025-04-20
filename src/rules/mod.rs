@@ -3,6 +3,8 @@ use strsim::normalized_damerau_levenshtein;
 
 use crate::shlex::shlex;
 
+mod utils;
+
 /// Result of rule execution as a parallel iterator.
 type RuleResultParIter = Either<
     <Option<Vec<String>> as IntoParallelIterator>::Iter,
@@ -80,6 +82,7 @@ define_rules!(
     mkdir_missing_parent,
     rm_dir,
     sudo,
+    taskfile_no_task,
     uv_unexpected_argument,
 );
 
