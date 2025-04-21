@@ -20,6 +20,12 @@ path = "src/main.rs"
 [package.metadata.deb]
 name = "fixit"
 
+[package.metadata.generate-rpm]
+name = "fixit"
+assets = [
+  { source = "target/release/fixit", dest = "/usr/bin/fixit", mode = "755" },
+]
+
 [profile.release]
 # The goal here is to optimize for the binary size without sacrifising any
 # performance mostly by stripping any unnecessary code and data as much as
