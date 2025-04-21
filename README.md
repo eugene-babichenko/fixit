@@ -30,13 +30,17 @@ select a fix it is run automatically and added to your shell history.
 
 ## Installation
 
-`apt` (Ubuntu, Debian, Mint, etc):
+<details>
+<summary>apt (Ubuntu, Debian, Mint, etc)</summary>
 
     echo "deb [arch=$(dpkg --print-architecture) trusted=yes] https://eugene-babichenko.github.io/fixit/ppa ./" | sudo tee /etc/apt/sources.list.d/fixit.list > /dev/null
     sudo apt update
     sudo apt install fixit
 
-**Arch Linux**:
+</details>
+
+<details>
+<summary>Arch Linux</summary>
 
     yay -S fixit-bin
 
@@ -44,13 +48,35 @@ Or build from source:
 
     yay -S fixit
 
-**macOS** Homebrew/Linuxbrew:
+</details>
+
+<details>
+<summary>Fedora, RHEL, etc (everything using dnf, yum, rpm)</summary>
+
+Create a new file with the following contents at `/etc/yum.repos.d/fixit.repo`
+
+    [fixit]
+    name=fixit GitHub repository
+    baseurl=https://eugene-babichenko.github.io/fixit/rpm
+    enabled=1
+    gpgcheck=0
+
+Run `dnf install fixit`.
+
+</details>
+
+<details>
+<summary>macOS Homebrew/Linuxbrew</summary>
 
     brew install eugene-babichenko/fixit/fixit
 
-**Cargo** (any system, you will need the [Rust toolchain][rust]):
+</details>
+<details>
+<summary>Cargo (any OS, you will need the Rust toolchain)</summary>
 
     cargo install fixit-cli
+
+</details>
 
 You can also download pre-built binaries for Linux (static binaries) and macOS
 from [Releases][releases].
@@ -163,7 +189,6 @@ Logging is implemented via `env_logger`. Please refer to its
   manager.
 
 [thefuck]: https://github.com/nvbn/thefuck
-[rust]: https://www.rust-lang.org/tools/install
 [env-logger]:
   https://docs.rs/env_logger/latest/env_logger/index.html#enabling-logging
 [kitty-remote]:
