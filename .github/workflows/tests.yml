@@ -44,6 +44,9 @@ jobs:
       RUST_BACKTRACE: 1
       LLVM_PROFILE_FILE: default_%m%c.profraw
     steps:
+      - name: Try createrepo
+        run: createrepo -h
+
       - name: Checkout
         uses: actions/checkout@v4
 
