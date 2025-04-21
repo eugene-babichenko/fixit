@@ -73,21 +73,21 @@ end"
 }
 
 fn homebrew_platform(version: &str, platform: &str) -> String {
-    let (archive, hash) = bin_download_data(&version, platform);
+    let (archive, hash) = bin_download_data(version, platform);
     format!("url \"{archive}\"\n      sha256 \"{hash}\"")
 }
 
 fn aur(version: String) {
-    let mut src = ureq::get(&format!(
+    let src = ureq::get(&format!(
         "https://github.com/eugene-babichenko/fixit/archive/v{version}.tar.gz"
     ))
     .call()
     .unwrap()
-    .into_reader();
-    let mut buf = Vec::new();
-    src.read_to_end(&mut buf).unwrap();
+    .into_body()
+    .read_to_vec()
+    .unwrap();
     let mut hasher = Sha256::new();
-    hasher.update(&buf);
+    hasher.update(&src);
     let checksum = hex::encode(hasher.finalize());
 
     let arch_version = arch_version(&version);
@@ -169,7 +169,7 @@ fn makepkg() {
 
 fn aur_bin_platform(version: &str, platform: &str) -> String {
     let dl_platform = format!("{platform}-unknown-linux-musl");
-    let (archive, hash) = bin_download_data(&version, &dl_platform);
+    let (archive, hash) = bin_download_data(version, &dl_platform);
     format!(
         "source_{platform}=('fixit-{platform}-{version}.tar.gz::{archive}')
 sha256sums_{platform}=('{hash}')"
@@ -179,7 +179,12 @@ sha256sums_{platform}=('{hash}')"
 fn bin_download_data(version: &str, platform: &str) -> (String, String) {
     let prefix = format!("https://github.com/eugene-babichenko/fixit/releases/download/v{version}/fixit-v{version}-{platform}");
     let hash_url = format!("{prefix}.sha256");
-    let hash = ureq::get(&hash_url).call().unwrap().into_string().unwrap();
+    let hash = ureq::get(&hash_url)
+        .call()
+        .unwrap()
+        .into_body()
+        .read_to_string()
+        .unwrap();
     let archive = format!("{prefix}.tar.gz");
     (archive, hash)
 }
