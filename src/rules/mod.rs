@@ -78,6 +78,7 @@ define_rules!(
     git_commit_no_changes,
     git_commit_untracked_files,
     git_no_upstream,
+    git_retag,
     git_wrong_command,
     mkdir_missing_parent,
     rm_dir,

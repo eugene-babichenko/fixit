@@ -150,6 +150,8 @@ Logging is implemented via `env_logger`. Please refer to its
 - `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
 - `git_commit_no_changes` - suggest using `git commit -a`.
 - `git_no_upstream` - set upstream branch when pushing.
+- `git_retag` - suggest deleting a git tag and tagging a new commit with it, if
+  the tag already exists.
 - `git_wrong_command` - fix misspelled git commands.
 - `mkdir_missing_parent` - suggest using `mkdir -p` to create missing in-between
   directories.
