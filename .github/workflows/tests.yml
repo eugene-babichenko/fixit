@@ -45,7 +45,7 @@ jobs:
       LLVM_PROFILE_FILE: default_%m%c.profraw
     steps:
       - name: Try createrepo
-        run: createrepo -h
+        run: createrepo_c -h
 
       - name: Checkout
         uses: actions/checkout@v4
