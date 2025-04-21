@@ -20,7 +20,7 @@ jobs:
 
       - name: Verify tag matches Cargo.toml version
         run: |
-          CARGO_VERSION=$(cargo metadata --format-version 1 | jq -j --raw-output '.packages[] | select(.name == "fixit-cli") | .version)
+          CARGO_VERSION=$(cargo metadata --format-version 1 | jq -j --raw-output '.packages[] | select(.name == "fixit-cli") | .version')
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
           if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
             echo "Version mismatch: Cargo.toml ($CARGO_VERSION) vs Git tag ($TAG_VERSION)"
