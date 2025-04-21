@@ -19,6 +19,7 @@ and this project adheres to
 - `taskfile_no_task`: when you try to run a task from a `Taskfile`, it will
   suggest valid task names.
 - `git_retag`: suggest deleting the existing tag before putting it again.
+- RPM packages are now available!
 
 ### Changed
 

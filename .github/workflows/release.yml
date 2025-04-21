@@ -74,6 +74,10 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: cargo install cargo-deb
 
+      - name: Install cargo-generate-rpm
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo install cargo-generate-rpm
+
       - name: Add Rust target
         if: ${{ ! matrix.cross }}
         run: rustup target add ${{ matrix.target }}
@@ -116,6 +120,12 @@ jobs:
           cargo deb --target=${{ matrix.target }} --no-build --no-strip
           gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/debian/*.deb
 
+      - name: Create and upload rpm package
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo generate-rpm --target=${{ matrix.target }} --auto-req no
+          gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/generate-rpm/*.rpm
+
   publish_release:
     name: Publish release
     runs-on: ubuntu-latest
@@ -128,7 +138,7 @@ jobs:
         run: gh release edit ${{ github.ref_name }} --draft=false
 
   publish_dep_repo:
-    name: Publish deb repository
+    name: Publish deb & rpm repositories
     runs-on: ubuntu-latest
     needs: publish_release
     steps:
@@ -136,10 +146,18 @@ jobs:
         uses: actions/checkout@v4
       - name: Publish
         run: |
+          sudo apt-get install -y createrepo-c
+
           mkdir -p _site/ppa
           cd _site/ppa
           gh release download ${{ github.ref_name }} --pattern '*.deb'
           dpkg-scanpackages --multiversion . /dev/null | gzip -9c > Packages.gz
+          cd ..
+
+          mkdir rpm
+          cd rpm
+          gh release download ${{ github.ref_name }} --pattern '*.rpm'
+          createrepo_c .
           cd ..
 
           touch .nojekyll
