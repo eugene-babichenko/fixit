@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.10.0
+
 ### Added
 
 - `cargo_clippy_args`: a rule for `cargo clippy` arguments that must be
