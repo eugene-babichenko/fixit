@@ -8,6 +8,10 @@ and this project adheres to
 
 ## Unreleased
 
+### Changed
+
+- All generated shell functions now have their variables local to themselves.
+
 ## v0.10.0
 
 ### Added
