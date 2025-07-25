@@ -57,7 +57,7 @@ fn fixed() {
 
     cmd!(sh, "tmux kill-session -t test_session").run().unwrap();
 
-    println!("{}", res);
+    println!("{res}");
 
     assert!(res.contains("got fast output"));
     assert!(res.contains("Hello, world!"));

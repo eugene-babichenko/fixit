@@ -7,7 +7,7 @@ pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
     log::debug!("getting text from tmux");
 
     let output = Command::new("tmux")
-        .args(["capture-pane", "-p", "-S", &format!("-{}", depth)])
+        .args(["capture-pane", "-p", "-S", &format!("-{depth}")])
         .output()
         .ok()?;
 
