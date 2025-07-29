@@ -12,6 +12,10 @@ and this project adheres to
 
 - All generated shell functions now have their variables local to themselves.
 
+### Fixed
+
+- Introduce a reliable method for removing duplicates.
+
 ## v0.10.0
 
 ### Added

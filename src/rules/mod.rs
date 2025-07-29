@@ -1,5 +1,7 @@
+use std::collections::BTreeSet;
+
 use rayon::prelude::*;
-use strsim::normalized_damerau_levenshtein;
+use strsim::damerau_levenshtein;
 
 use crate::shlex::shlex;
 
@@ -68,7 +70,7 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
     // split command into parts
     let cmd_split = shlex(cmd);
 
-    let mut fixes: Vec<_> = rules
+    rules
         .par_iter()
         .flat_map(|fixer| {
             output
@@ -77,14 +79,13 @@ pub fn find_fixes(cmd: &str, output: Vec<String>, rules: &[Rule]) -> Vec<String>
         })
         .map(|fixed_cmd| {
             let fixed_cmd = fixed_cmd.join(" ");
-            let similarity = normalized_damerau_levenshtein(cmd, &fixed_cmd);
-            (fixed_cmd, similarity)
+            let similarity = damerau_levenshtein(cmd, &fixed_cmd);
+            (similarity, fixed_cmd)
         })
-        .collect();
-
-    fixes.sort_by(|(_, left), (_, right)| right.partial_cmp(left).unwrap());
-    fixes.dedup_by_key(|(fix, _)| fix.clone());
-    fixes.into_iter().map(|(fix, _)| fix).collect()
+        .collect::<BTreeSet<(usize, String)>>()
+        .into_iter()
+        .map(|r| r.1)
+        .collect()
 }
 
 #[cfg(test)]
