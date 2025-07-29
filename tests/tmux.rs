@@ -58,6 +58,7 @@ fn fixed() {
     .run()
     .unwrap();
     // boop
+    // boop
 
     std::thread::sleep(std::time::Duration::from_millis(1000));
 
