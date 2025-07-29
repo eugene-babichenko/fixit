@@ -7,15 +7,21 @@ use tempfile::NamedTempFile;
 fn fixed() {
     let histfile = NamedTempFile::new().unwrap();
 
+    let path = std::env::current_exe()
+        .map(|mut p| {
+            p.pop();
+            if p.ends_with("deps") {
+                p.pop();
+            }
+            p
+        })
+        .unwrap();
+
     let mut zsh = Command::new("zsh");
     zsh.args(["-f", "-i"])
         .env(
             "PATH",
-            format!(
-                "{}/target/debug/:{}",
-                env::current_dir().unwrap().display(),
-                env::var("PATH").unwrap()
-            ),
+            format!("{}:{}", path.display(), env::var("PATH").unwrap()),
         )
         .env("FIXIT_QUICK_ENABLE", "false")
         .env("HISTFILE", histfile.path())

@@ -4,6 +4,17 @@ use xshell::cmd;
 fn fixed() {
     let sh = xshell::Shell::new().unwrap();
 
+    let path = std::env::current_exe()
+        .map(|mut p| {
+            p.pop();
+            if p.ends_with("deps") {
+                p.pop();
+            }
+            p
+        })
+        .unwrap();
+    let path = path.display().to_string();
+
     cmd!(
         sh,
         "tmux new-session -d -s test_session bash --norc -i -o history"
@@ -15,12 +26,16 @@ fn fixed() {
         .run()
         .unwrap();
 
-    cmd!(
-        sh,
-        "tmux send-keys -t test_session 'export PATH=\"$PWD/target/debug/:$PATH\"' C-m"
-    )
-    .run()
-    .unwrap();
+    sh.cmd("tmux")
+        .args([
+            "send-keys",
+            "-t",
+            "test_session",
+            &format!("export PATH={path}:$PATH"),
+            "C-m",
+        ])
+        .run()
+        .unwrap();
 
     cmd!(
         sh,
@@ -49,7 +64,7 @@ fn fixed() {
         .run()
         .unwrap();
 
-    let res = cmd!(sh, "tmux capture-pane -t test_session -p")
+    let res = cmd!(sh, "tmux capture-pane -t test_session -p -S -1000")
         .read()
         .unwrap();
 

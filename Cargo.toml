@@ -1,5 +1,5 @@
-[workspace]
-members = [".", "xtask"]
+# [workspace]
+# members = [".", "xtask"]
 
 [package]
 name = "fixit-cli"
@@ -55,4 +55,4 @@ thiserror = "2"
 [dev-dependencies]
 expectrl = "0.7.1"
 rstest = { version = "0.21.0", default-features = false }
-xshell = "0.2.6"
+xshell = "0.2.7"

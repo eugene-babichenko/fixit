@@ -75,7 +75,7 @@ pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<S
         .map_err(|e| log::debug!("failed to stringify the command output: {e}"))
         .ok()?;
 
-    log::debug!("stdout {}", stdout);
+    log::debug!("stdout {stdout}");
 
     let cmd = cmd.trim();
 

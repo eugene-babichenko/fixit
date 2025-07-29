@@ -21,10 +21,7 @@ fn get_shell(powershell: bool) -> String {
         "/bin/sh".to_string()
     };
 
-    log::warn!(
-        "no $SHELL variable was found, using the default shell: {}",
-        shell
-    );
+    log::warn!("no $SHELL variable was found, using the default shell: {shell}");
 
     shell
 }
@@ -46,8 +43,8 @@ fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>, Err
     let stderr = stdout_to_string(output.stderr)?;
     let stdout = stdout_to_string(output.stdout)?;
 
-    log::debug!("command stderr: {}", stderr);
-    log::debug!("command stdout: {}", stdout);
+    log::debug!("command stderr: {stderr}");
+    log::debug!("command stdout: {stdout}");
 
     Ok(Some(vec![stderr, stdout]))
 }

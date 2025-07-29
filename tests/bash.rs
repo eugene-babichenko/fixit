@@ -9,15 +9,21 @@ use tempfile::NamedTempFile;
 fn bash() -> (Session, NamedTempFile) {
     let histfile = NamedTempFile::new().unwrap();
 
+    let path = std::env::current_exe()
+        .map(|mut p| {
+            p.pop();
+            if p.ends_with("deps") {
+                p.pop();
+            }
+            p
+        })
+        .unwrap();
+
     let mut bash = Command::new("bash");
     bash.args(["--norc", "-i", "-o", "history"])
         .env(
             "PATH",
-            format!(
-                "{}/target/debug/:{}",
-                env::current_dir().unwrap().display(),
-                env::var("PATH").unwrap()
-            ),
+            format!("{}:{}", path.display(), env::var("PATH").unwrap()),
         )
         .env("FIXIT_QUICK_ENABLE", "false")
         .env("HISTFILE", histfile.path())
