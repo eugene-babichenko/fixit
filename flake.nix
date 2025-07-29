@@ -40,13 +40,20 @@
         commonArgs
         // {
           inherit cargoArtifacts;
-          nativeCheckInputs = with pkgs; [ coreutils bash fish zsh tmux ];
+          nativeCheckInputs = with pkgs; [ bash fish zsh tmux ];
         }
       );
     in
     {
       checks = {
-        inherit fixit-crate;
+        cargo-nextest = craneLib.cargoNextest(
+          commonArgs
+          // {
+            inherit cargoArtifacts;
+            nativeBuildInputs = with pkgs; [ bash fish zsh tmux ];
+            CARGO_PROFILE = "dev";
+          }
+        );
       };
     }
     );
