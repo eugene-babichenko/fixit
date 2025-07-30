@@ -12,6 +12,8 @@ and this project adheres to
 
 - rules: `git_branch_exists` for when a branch specified in `git checkout -b`
   already exists.
+- rules: `git_branch_not_found` for when a branch is not found during
+  `git checkout` suggest to either create it or look for similar names.
 
 ### Changed
 

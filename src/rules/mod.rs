@@ -55,6 +55,7 @@ define_rules!(
     cp_dir,
     git_add_all_lowercase,
     git_branch_exists,
+    git_branch_not_found,
     git_commit_no_changes,
     git_commit_untracked_files,
     git_no_upstream,
