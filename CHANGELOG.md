@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- rules: `git_branch_exists` for when a branch specified in `git checkout -b`
+  already exists.
+
 ### Changed
 
 - All generated shell functions now have their variables local to themselves.
