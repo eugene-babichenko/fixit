@@ -7,7 +7,9 @@ const SCRIPT: &str =
     r#"tell application "iTerm2" to get contents of current session of current window"#;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    env::var("ITERM_SESSION_ID").ok()?;
+    if &env::var("TERM_PROGRAM").ok()? != "iTerm.app" {
+        return None;
+    }
 
     let output = Command::new("osascript")
         .args(["-e", SCRIPT])

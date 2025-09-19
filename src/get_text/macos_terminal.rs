@@ -7,7 +7,7 @@ const SCRIPT: &str =
     r#"tell application "Terminal" to get history of selected tab of front window"#;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    if env::var("TERM_PROGRAM") != Ok("Apple_Terminal".to_string()) {
+    if env::var("TERM_PROGRAM").ok()? != "Apple_Terminal" {
         return None;
     }
 

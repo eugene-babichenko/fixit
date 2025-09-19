@@ -4,7 +4,8 @@ use std::{env, process::Command};
 use super::find_command_output;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    env::var("KITTY_INSTALLATION_DIR").ok()?;
+    // Use specifically this variable to see if remote control is enabled.
+    env::var("KITTY_PUBLIC_KEY").ok()?;
 
     let shell_integration = env::var("KITTY_SHELL_INTEGRATION").is_ok();
     let extent = if shell_integration {

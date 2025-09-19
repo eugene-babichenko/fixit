@@ -16,6 +16,9 @@ and this project adheres to
 ### Changed
 
 - All generated shell functions now have their variables local to themselves.
+- More robust detection for tmux, WezTerm, and iTerm using `TERM_PROGRAM`.
+- When detecting Kitty check for `KITTY_PUBLIC_KEY` to see if remote control is
+  enabled.
 
 ### Fixed
 

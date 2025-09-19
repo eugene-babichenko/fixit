@@ -2,7 +2,9 @@ use crate::get_text::find_command_output;
 use std::{env, process::Command};
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    env::var("TMUX").ok()?;
+    if &env::var("TERM_PROGRAM").ok()? != "tmux" {
+        return None;
+    }
 
     log::debug!("getting text from tmux");
 
