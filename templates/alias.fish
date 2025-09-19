@@ -1,4 +1,4 @@
-function {{name}} -d "Fix your previous command"
+function __name__ -d "Fix your previous command"
     set -l previous_cmd "$history[1]"
     set -lx FIXIT_FNS (
         functions | cut -d' ' -f1

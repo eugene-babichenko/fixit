@@ -1,4 +1,4 @@
-function {{name}}() {
+function __name__() {
     local previous_cmd="$(fc -ln -1)"
     local FIXIT_FNS="$(
         print -l ${(ok)functions}

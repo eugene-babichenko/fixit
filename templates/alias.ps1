@@ -1,4 +1,4 @@
-function {{name}} {
+function __name__ {
     $previousCmd = (Get-History -Count 1).CommandLine
     try {
         $env:FIXIT_FNS = (Get-Command).Name

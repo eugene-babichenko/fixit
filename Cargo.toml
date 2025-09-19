@@ -40,7 +40,6 @@ panic = "abort"
 [dependencies]
 # This project is conscious about its dependencies. Only add them if you really
 # need to. Be aware of crates features, and only enable what is needed.
-askama = { version = "0.14.0", default-features = false, features = ["std", "alloc", "derive"]}
 clap = { version = "4", features = ["derive", "env"] }
 ctrlc = { version = "3", features = ["termination"] }
 dialoguer = { version = "0.11", default-features = false }
