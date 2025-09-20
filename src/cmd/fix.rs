@@ -1,8 +1,8 @@
 use std::{io, time::SystemTime};
 
+use anyhow::{Context, Result};
 use clap::Parser;
 use dialoguer::{console::Term, theme::ColorfulTheme, Select};
-use thiserror::Error;
 
 use crate::{
     get_text,
@@ -23,23 +23,11 @@ pub struct Cmd {
     get_text: crate::get_text::Config,
 }
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("error while rendering the selection menu")]
-    Select(#[from] dialoguer::Error),
-    #[error(transparent)]
-    GetText(#[from] get_text::Error),
-    #[error("failed to set the Ctrl-C handler")]
-    CtrlC(#[from] ctrlc::Error),
-    #[error("failed to show the cursor again")]
-    ShowCursor(#[source] io::Error),
-}
-
-pub fn run(cmd: Cmd) -> Result<(), Error> {
+pub fn run(cmd: Cmd) -> Result<()> {
     // Set empty handler for Ctrl-C. This will cause `Select` to exit with
     // an error instead of immediately interrupting this program. This is used for proper nice
     // cancellation.
-    ctrlc::set_handler(|| {})?;
+    ctrlc::set_handler(|| {}).context("failed to set the Ctrl-C handler")?;
 
     let time = SystemTime::now();
 
@@ -85,9 +73,13 @@ pub fn run(cmd: Cmd) -> Result<(), Error> {
         Ok(None) => {}
         // Do not throw an error when Ctrl-C is pressed.
         Err(dialoguer::Error::IO(e)) if e.kind() == io::ErrorKind::Interrupted => {
-            Term::stderr().show_cursor().map_err(Error::ShowCursor)?;
+            Term::stderr()
+                .show_cursor()
+                .context("failed to show the cursor again")?;
         }
-        Err(e) => return Err(Error::Select(e)),
+        r @ Err(_) => {
+            r.context("error while rendering the selection menu")?;
+        }
     }
 
     eprintln!("Cancelled.");

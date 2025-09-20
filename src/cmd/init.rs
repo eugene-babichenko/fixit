@@ -1,7 +1,6 @@
-use std::io::{stdout, Write};
+use std::io::{stdout, Result, Write};
 
 use clap::{Parser, Subcommand};
-use thiserror::Error;
 
 #[derive(Parser)]
 pub struct Cmd {
@@ -21,10 +20,6 @@ enum Shell {
     Powershell,
 }
 
-#[derive(Debug, Error)]
-#[error("failed to render the alias")]
-pub struct Error(#[source] std::io::Error);
-
 macro_rules! include_template {
     ($ext:literal) => {
         include_str!(concat!(
@@ -35,7 +30,7 @@ macro_rules! include_template {
     };
 }
 
-pub fn run(cmd: Cmd) -> Result<(), Error> {
+pub fn run(cmd: Cmd) -> Result<()> {
     let template = match cmd.shell {
         Shell::Bash => include_template!("sh"),
         Shell::Fish => include_template!("fish"),
@@ -47,5 +42,6 @@ pub fn run(cmd: Cmd) -> Result<(), Error> {
         Shell::Powershell => include_template!("ps1"),
     };
     let alias = template.replacen("__name__", &cmd.name, 1);
-    stdout().write(alias.as_bytes()).map(|_| ()).map_err(Error)
+    stdout().write_all(alias.as_bytes())?;
+    Ok(())
 }

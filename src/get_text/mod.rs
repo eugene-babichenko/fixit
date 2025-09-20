@@ -1,8 +1,6 @@
-use std::{env, io, string::FromUtf8Error};
-
+use anyhow::{Context, Result};
 use clap::Parser;
 use regex::Regex;
-use thiserror::Error;
 
 mod iterm;
 mod kitty;
@@ -25,17 +23,7 @@ pub struct Config {
     powershell: bool,
 }
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("no $SHELL variable was found")]
-    Shell(#[from] env::VarError),
-    #[error("could not re-run the failing command (might be a problem with the $SHELL variable)")]
-    ReRun(#[from] io::Error),
-    #[error("the output of the command is not a valid UTF-8 text")]
-    CmdOutput(#[from] FromUtf8Error),
-}
-
-pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error> {
+pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>> {
     if config.quick {
         // Terminal multiplexers go first. Everything must go in the alphanumeric order.
         let get_text = [
@@ -62,8 +50,8 @@ pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>, Error>
     rerun_command::rerun_command(cmd, config.powershell)
 }
 
-pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String, Error> {
-    String::from_utf8(stdout).map_err(Into::into)
+pub fn stdout_to_string(stdout: Vec<u8>) -> Result<String> {
+    String::from_utf8(stdout).context("the output of the command is not a valid UTF-8 text")
 }
 
 pub fn find_command_output(cmd: &str, stdout: Vec<u8>, depth: usize) -> Option<String> {

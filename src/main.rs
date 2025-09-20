@@ -1,10 +1,10 @@
 #![deny(warnings)]
 
-use std::{error::Error as _, process::exit};
+use std::process::exit;
 
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 use cmd::{fix, init};
-use thiserror::Error;
 
 mod cmd;
 mod get_text;
@@ -27,23 +27,17 @@ enum Commands {
     Init(cmd::init::Cmd),
 }
 
-#[derive(Debug, Error)]
-enum Error {
-    #[error(transparent)]
-    Fix(#[from] cmd::fix::Error),
-    #[error(transparent)]
-    Init(#[from] cmd::init::Error),
-}
-
-fn run() -> Result<(), Error> {
+fn run() -> Result<()> {
     env_logger::init();
 
     let args = Args::parse();
 
     match args.command {
-        Commands::Fix(cmd) => fix::run(cmd).map_err(Into::into),
-        Commands::Init(cmd) => init::run(cmd).map_err(Into::into),
+        Commands::Fix(cmd) => fix::run(cmd)?,
+        Commands::Init(cmd) => init::run(cmd)?,
     }
+
+    Ok(())
 }
 
 fn main() {

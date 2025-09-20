@@ -1,8 +1,10 @@
 use std::{env, process::Command};
 
-use crate::get_text::{stdout_to_string, Error};
+use anyhow::{Context, Result};
 
-pub fn rerun_command(cmd: &str, powershell: bool) -> Result<Option<Vec<String>>, Error> {
+use crate::get_text::stdout_to_string;
+
+pub fn rerun_command(cmd: &str, powershell: bool) -> Result<Option<Vec<String>>> {
     rerun_command_impl(cmd, &get_shell(powershell))
 }
 
@@ -29,14 +31,12 @@ fn get_shell(powershell: bool) -> String {
     shell
 }
 
-fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>, Error> {
+fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>> {
     log::debug!("shell in use: {}", &shell);
     log::debug!("re-running command: {}", &cmd);
-    let output = Command::new(shell)
-        .arg("-c")
-        .arg(cmd)
-        .output()
-        .map_err(Error::ReRun)?;
+    let output = Command::new(shell).arg("-c").arg(cmd).output().context(
+        "could not re-run the failing command (might be a problem with the $SHELL variable)",
+    )?;
 
     // if the command is successful we have nothing to do
     if output.status.success() {
