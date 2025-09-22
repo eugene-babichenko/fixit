@@ -28,7 +28,7 @@ jobs:
           fi
 
       - name: Extract release notes
-        run: python3 ci/release-notes.py > notes.md
+        run: awk '/^## /{c++} c==2{print} c==3{exit}' CHANGELOG.md | sed 's/^ *//;s/ *$//' > notes.md
 
       - name: Create draft release
         run: gh release create ${{ github.ref_name }} --notes-file notes.md --draft
@@ -56,75 +56,43 @@ jobs:
         include:
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            cross: true
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            cross: true
-          - os: macos-latest
+          - os: ubuntu-latest
             target: x86_64-apple-darwin
-            cross: false
-          - os: macos-latest
+          - os: ubuntu-latest
             target: aarch64-apple-darwin
-            cross: false
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            cross: false
     steps:
-      - name: Install cargo-deb
-        if: matrix.os == 'ubuntu-latest'
-        run: cargo install cargo-deb
-
-      - name: Install cargo-generate-rpm
-        if: matrix.os == 'ubuntu-latest'
-        run: cargo install cargo-generate-rpm
-
-      - name: Add Rust target
-        if: ${{ ! matrix.cross }}
-        run: rustup target add ${{ matrix.target }}
-
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build (cargo)
-        if: ${{ ! matrix.cross }}
-        shell: bash
-        run: cargo $BUILD_FLAGS
-
-      - name: Build (cross)
-        if: ${{ matrix.cross }}
+      - name: Build and upload (*nix)
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          gh release download --repo 'cross-rs/cross' --pattern 'cross-x86_64-unknown-linux-musl.tar.gz'
-          tar -xvzf cross-x86_64-unknown-linux-musl.tar.gz
-          chmod +x ./cross
-          ./cross $BUILD_FLAGS
-
-      - name: Upload binary archive (*nix)
-        if: matrix.os != 'windows-latest'
-        run: |
+          docker run --rm -it -v $(pwd):/io -w /io ghcr.io/rust-cross/cargo-zigbuild cargo zigbuild $BUILD_FLAGS
           cp ./target/${{ matrix.target }}/release/fixit .
           tar -czvf $ARCHIVE_NAME.tar.gz fixit
           cat $ARCHIVE_NAME.tar.gz | shasum -a 256 | cut -d " " -f 1 | tr -d "\n" > $ARCHIVE_NAME.sha256
           gh release upload ${{ github.ref_name }} $ARCHIVE_NAME.{tar.gz,sha256}
+          if [[ "${{ matrix.target }}" == *"darwin"* ]]; then
+            cargo install cargo-deb
+            cargo install cargo-generate-rpm
+            cargo deb --target=${{ matrix.target }} --no-build --no-strip
+            cargo generate-rpm --target=${{ matrix.target }} --auto-req no
+            gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/debian/*.deb ./target/${{ matrix.target }}/generate-rpm/*.rpm
+          fi
 
-      - name: Upload binary archive (Windows)
+      - name: Build and upload (Windows)
         if: matrix.os == 'windows-latest'
+        shell: powershell
         run: |
+          rustup target add ${{ matrix.target }}
+          cargo $BUILD_FLAGS
           Compress-Archive -Path "./target/${{ matrix.target }}/release/fixit.exe" "$env:ARCHIVE_NAME.zip"
           (Get-FileHash "$env:ARCHIVE_NAME.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -NoNewline -File "$env:ARCHIVE_NAME.sha256"
-          gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.zip"
-          gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.sha256"
-
-      - name: Create and upload deb package
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cargo deb --target=${{ matrix.target }} --no-build --no-strip
-          gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/debian/*.deb
-
-      - name: Create and upload rpm package
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cargo generate-rpm --target=${{ matrix.target }} --auto-req no
-          gh release upload ${{ github.ref_name }} ./target/${{ matrix.target }}/generate-rpm/*.rpm
+          gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.zip" "$env:ARCHIVE_NAME.sha256"
 
   publish_release:
     name: Publish release

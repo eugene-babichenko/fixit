@@ -1,20 +1,14 @@
-use std::{env, process::Command};
-
-use super::find_command_output;
-
-/// This is an AppleScript that gets the contents of the current tab
-const SCRIPT: &str =
-    r#"tell application "Terminal" to get history of selected tab of front window"#;
+use crate::get_text::quick_search_generic;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    if env::var("TERM_PROGRAM").ok()? != "Apple_Terminal" {
-        return None;
-    }
-
-    let output = Command::new("osascript")
-        .args(["-e", SCRIPT])
-        .output()
-        .ok()?;
-
-    find_command_output(cmd, output.stdout, depth)
+    quick_search_generic(
+        "Apple_Terminal",
+        &[
+            "osascript",
+            "-e",
+            r#"tell application "Terminal" to get history of selected tab of front window"#,
+        ],
+        depth,
+        cmd,
+    )
 }

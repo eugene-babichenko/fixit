@@ -23,6 +23,32 @@ pub struct Config {
     powershell: bool,
 }
 
+pub fn quick_search_generic(
+    term_program: &str,
+    get_text_cmd: &[&str],
+    depth: usize,
+    broken_cmd: &str,
+) -> Option<String> {
+    if std::env::var("TERM_PROGRAM").as_deref() != Ok(term_program) {
+        return None;
+    }
+
+    log::debug!("getting text from {term_program}");
+
+    let [command, args @ ..] = get_text_cmd else {
+        unimplemented!("get_text_cmd must always be a command with arguments")
+    };
+
+    let output = std::process::Command::new(command)
+        .args(args)
+        .output()
+        .ok()?;
+
+    log::debug!("got output from {term_program}");
+
+    find_command_output(broken_cmd, output.stdout, depth)
+}
+
 pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>> {
     if config.quick {
         // Terminal multiplexers go first. Everything must go in the alphanumeric order.

@@ -1,16 +1,16 @@
-use std::{env, process::Command};
-
-use super::find_command_output;
+use crate::get_text::quick_search_generic;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
-    if &env::var("TERM_PROGRAM").ok()? != "WezTerm" {
-        return None;
-    }
-
-    let output = Command::new("wezterm")
-        .args(["cli", "get-text", "--start-line", &format!("-{depth}")])
-        .output()
-        .ok()?;
-
-    find_command_output(cmd, output.stdout, depth)
+    quick_search_generic(
+        "WezTerm",
+        &[
+            "wezterm",
+            "cli",
+            "get-text",
+            "--start-line",
+            &format!("-{depth}"),
+        ],
+        depth,
+        cmd,
+    )
 }
