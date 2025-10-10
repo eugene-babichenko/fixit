@@ -47,8 +47,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get install -y zsh fish tmux
+      - name: Install dependencies from apt
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: zsh fish tmux
+          version: 1.0
 
       - name: Install coverage tools
         run: rustup component add llvm-tools
