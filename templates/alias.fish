@@ -6,7 +6,8 @@ function __name__ -d "Fix your previous command"
     )
     fixit fix "$previous_cmd" | read -l fixed_cmd
     if [ "$fixed_cmd" != "" ]
-        commandline "$fixed_cmd"
-        commandline -f execute
+        eval "$fixed_cmd"
+        history append -- "$fixed_cmd"
+        history save
     end
 end

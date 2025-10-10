@@ -23,6 +23,7 @@ and this project adheres to
 ### Fixed
 
 - Introduce a reliable method for removing duplicates.
+- Incorrect behavior in fish 4.x.
 
 ## v0.10.0
 
