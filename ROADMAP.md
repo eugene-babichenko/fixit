@@ -34,6 +34,6 @@
   - [x] Homebrew
   - [x] AUR
   - [x] deb
-  - [ ] rpm
+  - [x] rpm
   - [ ] NixOS
   - anything else

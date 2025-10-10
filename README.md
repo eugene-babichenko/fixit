@@ -4,11 +4,9 @@
 [![Build status](https://github.com/eugene-babichenko/fixit/actions/workflows/tests.yml/badge.svg)](https://github.com/eugene-babichenko/fixit/actions)
 [![Coverage Status](https://coveralls.io/repos/github/eugene-babichenko/fixit/badge.svg)](https://coveralls.io/github/eugene-babichenko/fixit)
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/eugene-babichenko/fixit)
-
-`fixit` is a terminal application that fixes mistakes in your commands inspired
-by [The Fuck][thefuck]. It is also designed to be _fast as fuck_ (more about
-that in the [motivation section](MOTIVATION.md)).
+`fixit` is a terminal application that fixes mistakes in your commands. It is
+inspired by [The Fuck][thefuck]. It is also designed to be _fast as fuck_ (more
+about that in the [motivation section](MOTIVATION.md)).
 
 See contributing guidelines [here](CONTRIBUTING.md). If you want to help `fixit`
 move forward, see the [roadmap](ROADMAP.md).
@@ -17,16 +15,15 @@ move forward, see the [roadmap](ROADMAP.md).
 
 ## How it works?
 
-When you run the `fix` command, it gets the last command from the shell history.
-Then it gets the output of this command in one of the two ways:
+When you run the `fix` command, it takes the last command from your shell
+history and retrieves its output by either:
 
-- Re-running the command.
-- Retrieving the output from the emulator/multiplexer API (see
-  [the list](#software-with-quick-fixes-available) of compatible software).
+- Re-running the command, or
+- Queriying emulator/multiplexer API (we call this "quick fixes").
 
-Once `fixit` has the command output, it runs the command and its output through
-a number of [rules](#available-rules) to determine appropriate fixes. After you
-select a fix it is run automatically and added to your shell history.
+Then fixit runs the command and its output through a set of
+[rules](#available-rules) to suggest fixes. Then you select a fix and it is
+automatically run and added to your shell history.
 
 ## Installation
 
@@ -83,7 +80,7 @@ from [Releases][releases].
 
 ## Shell setup
 
-Add the corresponding line to your shell configuration file.
+Add the corresponding command to your shell configuration file.
 
 **bash**:
 
@@ -104,32 +101,6 @@ Add the corresponding line to your shell configuration file.
 ## Usage
 
 Having a command that broke? Just type `fix` in your shell.
-
-## A note for `kitty` users
-
-You don't need to do this, if you use a terminal multiplexer inside `kitty`.
-
-This is optional, but without this `fixit` will fall back to just re-running the
-command, which is going to be slower.
-
-To make quick completions work, you need to enable [remote
-control][kitty-remote]. This is recommended, because this application uses
-`kitty @ get-text` to retrieve the command output. For the best performance and
-stability you are advised to set up [shell integration][kitty-sh-i].
-
-## Software with quick fixes available
-
-Terminal multiplexers:
-
-- tmux
-- Zellij
-
-Teminal emulators:
-
-- iTerm
-- kitty
-- Wezterm
-- Terminal.app
 
 ## Configuration
 
@@ -159,6 +130,34 @@ re-initialize.
 
 Logging is implemented via `env_logger`. Please refer to its
 [documentation][env-logger] to see how to configure the logs.
+
+## Quick fixes
+
+### Software with quick fixes
+
+Terminal multiplexers:
+
+- tmux
+- Zellij
+
+Teminal emulators:
+
+- iTerm
+- kitty
+- Wezterm
+- Terminal.app
+
+### A note for `kitty` users
+
+You don't need to do this, if you use a terminal multiplexer inside `kitty`.
+
+This is optional, but without this `fixit` will fall back to just re-running the
+command, which is going to be slower.
+
+To make quick completions work, you need to enable [remote
+control][kitty-remote]. This is recommended, because this application uses
+`kitty @ get-text` to retrieve the command output. For the best performance and
+stability you are advised to set up [shell integration][kitty-sh-i].
 
 ## Available rules
 
