@@ -1,6 +1,3 @@
-[workspace]
-members = [".", "xtask"]
-
 [package]
 name = "fixit-cli"
 version = "0.10.0"

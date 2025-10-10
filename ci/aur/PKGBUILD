@@ -1,0 +1,19 @@
+# Maintainer: Eugene Babichenko <eugene.babichenko@gmail.com>
+
+pkgname='fixit-bin'
+pkgver='__VERSION__'
+pkgrel=1
+url='https://github.com/eugene-babichenko/fixit'
+pkgdesc='A utility to fix mistakes in your commands.'
+license=('MIT')
+arch=('x86_64' 'aarch64')
+
+source_x86_64=('fixit-x86_64-__VERSION__.tar.gz::https://github.com/eugene-babichenko/fixit/releases/download/v__VERSION__/fixit-v__VERSION__-x86_64-unknown-linux-musl.tar.gz')
+sha256sums_x86_64=('__SHA256_x86_64-unknown-linux-musl__')
+
+source_aarch64=('fixit-aarch64-__VERSION__.tar.gz::https://github.com/eugene-babichenko/fixit/releases/download/v__VERSION__/fixit-v__VERSION__-aarch64-unknown-linux-musl.tar.gz')
+sha256sums_aarch64=('__SHA256_aarch64-unknown-linux-musl__')
+
+package() {
+  install -Dm755 fixit -t "$pkgdir/usr/bin"
+}
