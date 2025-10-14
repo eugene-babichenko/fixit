@@ -8,6 +8,8 @@ and this project adheres to
 
 ## Unreleased
 
+## v0.11.0
+
 ### Added
 
 - rules: `git_branch_exists` for when a branch specified in `git checkout -b`
