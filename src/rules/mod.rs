@@ -57,6 +57,7 @@ define_rules!(
     git_branch_exists,
     git_commit_no_changes,
     git_commit_untracked_files,
+    git_missing_branch,
     git_no_upstream,
     git_retag,
     git_wrong_command,

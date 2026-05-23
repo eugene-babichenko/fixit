@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- rules: `git_missing_branch` for when a branch specified in `git checkout` does
+  not exist.
+
 ## v0.11.0
 
 ### Added

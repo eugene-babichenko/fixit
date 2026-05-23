@@ -180,6 +180,7 @@ stability you are advised to set up [shell integration][kitty-sh-i].
 - `git_retag` - suggest deleting a git tag and tagging a new commit with it, if
   the tag already exists.
 - `git_wrong_command` - fix misspelled git commands.
+- `git_missing_branch` - create a non-existing branch.
 - `mkdir_missing_parent` - suggest using `mkdir -p` to create missing in-between
   directories.
 - `rm_dir` - add `-r` to `rm` when trying to remove a directory.
