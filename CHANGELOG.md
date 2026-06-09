@@ -8,6 +8,12 @@ and this project adheres to
 
 ## Unreleased
 
+## v1.0.0
+
+And with this we cut `1.0.0`. The architecture is pretty much stable at this
+point and I do not expected much changes in this department, as well as with the
+settings and initialization interface.
+
 ### Added
 
 - rules: `git_missing_branch` for when a branch specified in `git checkout` does
