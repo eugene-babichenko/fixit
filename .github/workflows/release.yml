@@ -49,7 +49,7 @@ jobs:
     needs: create_release
     runs-on: ${{ matrix.os }}
     env:
-      BUILD_FLAGS: build --release --locked --target ${{ matrix.target }}
+      BUILD_FLAGS: --release --locked --target ${{ matrix.target }}
       ARCHIVE_NAME: fixit-${{ github.ref_name }}-${{ matrix.target }}
     strategy:
       matrix:
@@ -89,7 +89,7 @@ jobs:
         shell: powershell
         run: |
           rustup target add ${{ matrix.target }}
-          Invoke-Expression "cargo $env:BUILD_FLAGS"
+          Invoke-Expression "cargo build $env:BUILD_FLAGS"
           Compress-Archive -Path "./target/${{ matrix.target }}/release/fixit.exe" "$env:ARCHIVE_NAME.zip"
           (Get-FileHash "$env:ARCHIVE_NAME.zip" -Algorithm SHA256).Hash.ToLower() | Out-File -NoNewline -File "$env:ARCHIVE_NAME.sha256"
           gh release upload ${{ github.ref_name }} "$env:ARCHIVE_NAME.zip" "$env:ARCHIVE_NAME.sha256"
