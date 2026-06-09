@@ -71,7 +71,7 @@ jobs:
       - name: Build and upload (*nix)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          docker run --rm -it -v $(pwd):/io -w /io ghcr.io/rust-cross/cargo-zigbuild cargo zigbuild $BUILD_FLAGS
+          docker run --rm -v $(pwd):/io -w /io ghcr.io/rust-cross/cargo-zigbuild cargo zigbuild $BUILD_FLAGS
           cp ./target/${{ matrix.target }}/release/fixit .
           tar -czvf $ARCHIVE_NAME.tar.gz fixit
           cat $ARCHIVE_NAME.tar.gz | shasum -a 256 | cut -d " " -f 1 | tr -d "\n" > $ARCHIVE_NAME.sha256
