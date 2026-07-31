@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Fixed
+
+- Correctly support newer Zellij versions starting from 0.44.0. Older versions
+  are no longer supported.
+
 ## v1.0.0
 
 And with this we cut `1.0.0`. The architecture is pretty much stable at this

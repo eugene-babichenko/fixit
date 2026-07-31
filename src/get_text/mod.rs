@@ -23,18 +23,11 @@ pub struct Config {
     powershell: bool,
 }
 
-pub fn quick_search_generic(
-    term_program: &str,
+pub fn quick_search_generic_no_term(
     get_text_cmd: &[&str],
     depth: usize,
     broken_cmd: &str,
 ) -> Option<String> {
-    if std::env::var("TERM_PROGRAM").as_deref() != Ok(term_program) {
-        return None;
-    }
-
-    log::debug!("getting text from {term_program}");
-
     let [command, args @ ..] = get_text_cmd else {
         unimplemented!("get_text_cmd must always be a command with arguments")
     };
@@ -44,9 +37,22 @@ pub fn quick_search_generic(
         .output()
         .ok()?;
 
-    log::debug!("got output from {term_program}");
-
     find_command_output(broken_cmd, output.stdout, depth)
+}
+
+pub fn quick_search_generic(
+    term_program: &str,
+    get_text_cmd: &[&str],
+    depth: usize,
+    broken_cmd: &str,
+) -> Option<String> {
+    if std::env::var("TERM_PROGRAM").as_deref() != Ok(term_program) {
+        return None;
+    }
+    log::debug!("getting text from {term_program}");
+    let res = quick_search_generic_no_term(get_text_cmd, depth, broken_cmd)?;
+    log::debug!("got output from {term_program}");
+    Some(res)
 }
 
 pub fn get_text(config: Config, cmd: &str) -> Result<Option<Vec<String>>> {

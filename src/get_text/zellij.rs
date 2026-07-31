@@ -1,20 +1,12 @@
-use std::{env, fs::File, io::Read, process::Command};
+use std::env;
 
-use tempfile::NamedTempFile;
-
-use super::find_command_output;
+use super::quick_search_generic_no_term;
 
 pub fn get_text(cmd: &str, depth: usize) -> Option<String> {
     env::var("ZELLIJ").ok()?;
     log::debug!("getting text from zellij");
-    let f = NamedTempFile::new().ok()?;
-    Command::new("zellij")
-        .args(["action", "dump-screen", "--full", f.path().to_str()?])
-        .output()
-        .ok()?;
-    let mut file = File::open(f.path()).ok()?;
-    let mut output = Vec::new();
-    file.read_to_end(&mut output).ok()?;
+    let res =
+        quick_search_generic_no_term(&["zellij", "action", "dump-screen", "--full"], depth, cmd)?;
     log::debug!("got zellij output");
-    find_command_output(cmd, output, depth)
+    Some(res)
 }
