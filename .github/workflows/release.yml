@@ -72,11 +72,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           docker run --rm -v $(pwd):/io -w /io ghcr.io/rust-cross/cargo-zigbuild cargo zigbuild $BUILD_FLAGS
+          sudo chown -R $(id -u):$(id -g) target
           cp ./target/${{ matrix.target }}/release/fixit .
           tar -czvf $ARCHIVE_NAME.tar.gz fixit
           cat $ARCHIVE_NAME.tar.gz | shasum -a 256 | cut -d " " -f 1 | tr -d "\n" > $ARCHIVE_NAME.sha256
           gh release upload ${{ github.ref_name }} $ARCHIVE_NAME.{tar.gz,sha256}
-          if [[ "${{ matrix.target }}" == *"darwin"* ]]; then
+          if [[ "${{ matrix.target }}" == *"linux"* ]]; then
             cargo install cargo-deb
             cargo install cargo-generate-rpm
             cargo deb --target=${{ matrix.target }} --no-build --no-strip
