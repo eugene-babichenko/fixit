@@ -32,8 +32,8 @@ fn get_shell(powershell: bool) -> String {
 }
 
 fn rerun_command_impl(cmd: &str, shell: &str) -> Result<Option<Vec<String>>> {
-    log::debug!("shell in use: {}", &shell);
-    log::debug!("re-running command: {}", &cmd);
+    log::debug!("shell in use: {}", shell);
+    log::debug!("re-running command: {}", cmd);
     let output = Command::new(shell).arg("-c").arg(cmd).output().context(
         "could not re-run the failing command (might be a problem with the $SHELL variable)",
     )?;
