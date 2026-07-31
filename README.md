@@ -175,6 +175,8 @@ stability you are advised to set up [shell integration][kitty-sh-i].
 - `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
 - `git_branch_exists` - fix `git checkout -b` when trying to checkout an
   existing branch.
+- `git_branch_typo` - suggest the correct branch name when `git checkout` is
+  given a misspelled one.
 - `git_commit_no_changes` - suggest using `git commit -a`.
 - `git_no_upstream` - set upstream branch when pushing.
 - `git_retag` - suggest deleting a git tag and tagging a new commit with it, if

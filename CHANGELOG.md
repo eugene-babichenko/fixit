@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- rules: `git_branch_typo` for when a misspelled branch name is passed to
+  `git checkout`.
+
 ### Fixed
 
 - Correctly support newer Zellij versions starting from 0.44.0. Older versions
