@@ -12,6 +12,8 @@ and this project adheres to
 
 - rules: `git_branch_typo` for when a misspelled branch name is passed to
   `git checkout`.
+- rules: `fishmarks_bookmark_typo` for when a misspelled bookmark name is passed
+  to fishmarks' `g`.
 
 ### Fixed
 

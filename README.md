@@ -172,6 +172,9 @@ stability you are advised to set up [shell integration][kitty-sh-i].
 - `cp_cwd` - `cp` came with only one argument, maybe you want to copy to the
   current dir?
 - `cp_dir` - add `-R` to `cp` when you are attempting to copy a directory.
+- `fishmarks_bookmark_typo` - suggest the correct bookmark name when
+  [fishmarks](https://github.com/techwizrd/fishmarks) `g` is given a misspelled
+  one.
 - `git_add_all_lowercase` - correct `git add -a` to `git add -A`.
 - `git_branch_exists` - fix `git checkout -b` when trying to checkout an
   existing branch.

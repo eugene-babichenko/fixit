@@ -53,6 +53,7 @@ define_rules!(
     command_not_found,
     cp_cwd,
     cp_dir,
+    fishmarks_bookmark_typo,
     git_add_all_lowercase,
     git_branch_exists,
     git_branch_typo,
